@@ -17,6 +17,8 @@ setup(
     license="GPL",
     install_requires = [
       'Flask==0.8',
+      'sqlalchemy-migrate==0.7.2',
+      'SQLAlchemy==0.7.3'
       ],
     packages=find_packages(exclude=["tests.*", "tests"]),
     zip_safe=False,
