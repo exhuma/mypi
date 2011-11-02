@@ -29,7 +29,7 @@ release_table = Table(
     Column('version', String),
     Column('platform', String),
     Column('description', String),
-    PrimaryKeyConstraint('project', 'author_email'),
+    PrimaryKeyConstraint('project', 'author_email', 'version'),
     ForeignKeyConstraint(('project', 'author_email'),
                          ('project.name', 'project.author_email')),
     )
