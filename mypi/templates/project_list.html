@@ -1,24 +1,17 @@
-<html>
-    <body>
-        <table>
-            <tbody>
-                {% for p in projects %}
-                    <tr><th>{{p.name}}</th></tr>
-                    <tr>
-                        <td>
-                            <table>
-                                <tbody>
-                                    {% for r in p.releases %}
-                                        <tr>
-                                            <td>{{r.version}}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </body>
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Private Package Index</title>
+</head>
+<body>
+
+    <ul>
+        {% for p in projects %}
+        <li><a href="{{url_for('project', name=p.name, author_email=p.author_email)}}">{{p.name}}</a></li>
+        {% endfor %}
+    </ul>
+
+
+</body>
 </html>

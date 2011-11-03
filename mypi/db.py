@@ -4,6 +4,7 @@ from sqlalchemy import (
     create_engine,
     Column,
     String,
+    Unicode,
     Integer,
     ForeignKey,
     PrimaryKeyConstraint,
@@ -86,6 +87,17 @@ class Project(Base):
         return proj
 
     @classmethod
+    def get(self, session, email, name):
+        """
+        Return a project reference
+        """
+        q = session.query(Project)
+        q = q.filter(Project.author_email == email)
+        q = q.filter(Project.name == name)
+        proj = q.first()
+        return proj
+
+    @classmethod
     def all(self, session):
         """
         Return a list of projects
@@ -114,6 +126,8 @@ class Release(Base):
                              ('project.name', 'project.author_email')),
         {}
     )
+
+    files = relationship('File')
 
     project = Column(String)
     license = Column(String)
@@ -222,11 +236,12 @@ class File(Base):
     comment = Column(String)
     filetype = Column(String)
     pyversion = Column(String)
+    filename = Column(Unicode)
     protcol_version = Column(Integer)
 
 
     @classmethod
-    def add(self, session, data):
+    def add(self, session, data, filename):
 
         # ensure the release exists
         rel = Release.get(session, data['author_email'], data['name'], data['version'])
@@ -234,7 +249,8 @@ class File(Base):
             raise ValueError("Release for this file does not exist yet! "
                     "Please register it first!")
 
-        file = File(data["name"], data["author_email"], data["version"], data["md5_digest"])
+        file = File(data["name"], data["author_email"], data["version"],
+                filename, data["md5_digest"])
 
         file.comment = data["comment"]
         file.filetype = data["filetype"]
@@ -243,10 +259,21 @@ class File(Base):
 
         session.add(file)
 
-    def __init__(self, project, author_email, version, md5_digest):
+    @classmethod
+    def find(self, session, project, md5):
+        """
+        Finds a file by project and MD5-digest
+        """
+        q = session.query(File)
+        q = q.filter(File.project == project)
+        q = q.filter(File.md5_digest == md5)
+        return q.first()
+
+    def __init__(self, project, author_email, version, filename, md5_digest):
         self.project = project
         self.author_email = author_email
         self.version = version
+        self.filename = filename
         self.md5_digest = md5_digest
 
     def __eq__(self, other):

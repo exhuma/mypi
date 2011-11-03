@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Project: {{project.name}}</title>
+</head>
+<body>
+
+    <h1>{{project.name}}</h1>
+    <h2>{{project.author_email}}</h2>
+    <pre>{{project.description}}</pre>
+
+    <h2>Releases</h2>
+    <table>
+        <thead>
+            <tr>
+               <th>Version</th>
+               <th>Platform</th>
+               <th>License</th>
+               <th>Author</th>
+            </tr>
+        </thead>
+       <tbody>
+          {% for rel in project.releases %}
+          <tr>
+              <td>{{ rel.version }}</td>
+              <td>{{ rel.platform }}</td>
+              <td>{{ rel.license }}</td>
+              <td>{{ rel.author }}</td>
+          </tr>
+          <tr>
+              <td colspan="4">
+                  <table>
+                      <thead>
+                          <th colspan="2">File</th>
+                          <th>Python Version</th>
+                          <th>MD5</th>
+                          <th>Comment</th>
+                      </thead>
+                     <tbody>
+                         {% for file in rel.files %}
+                        <tr>
+                            <td><a href="{{url_for('download', project=project.name, md5=file.md5_digest) }}">{{ file.filename }}</a></td>
+                            <td>{{ file.filetype}}</td>
+                            <td>{{ file.pyversion }}</td>
+                            <td>{{ file.md5_digest }}</td>
+                            <td>{{ file.comment }}</td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+                  </table>
+              </td>
+          </tr>
+          {% endfor %}
+       </tbody>
+    </table>
+</body>
+</html>

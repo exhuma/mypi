@@ -1,14 +1,12 @@
 from os.path import join, exists
 from os import makedirs
 
-from flask import Flask, g, abort, render_template
+from flask import Flask, g, abort, render_template, send_from_directory
 from werkzeug.utils import secure_filename
 
 from mypi import db as model
 
 app = Flask(__name__)
-
-app.config['UPLOAD_FOLDER'] = "files"
 
 @app.before_request
 def before_request():
@@ -21,6 +19,7 @@ def teardown_request(exception):
     g.db.close()
 
 @app.route("/", methods=['GET'])
+@app.route("/project")
 def hello():
     projects = model.Project.all(g.db)
     return render_template("project_list.html", projects=projects)
@@ -38,17 +37,42 @@ def post():
 
     return abort(501, description="Action %s is not yet implemented" % frm[":action"])
 
+@app.route("/project/<author_email>/<name>")
+def project(author_email, name):
+    """
+    Display the Project details
+    """
+    proj = model.Project.get(g.db, author_email, name)
+    if not proj:
+        abort(404, description = "No such project")
+
+    return render_template("project.html", project=proj)
+
+@app.route("/download/<project>/<md5>")
+def download(project, md5):
+    file = model.File.find(g.db, project, md5)
+    if not file:
+        return abort(404, description="File not found")
+
+    folder = join(
+            app.config['UPLOAD_FOLDER'],
+            file.author_email.replace("@", "_at_"),
+            project)
+
+    return send_from_directory(
+            folder, file.filename, as_attachment=True)
+
 def _do_file_upload(data):
     from flask import request
     file = request.files['content']
     filename = secure_filename(file.filename)
     try:
-        model.File.add(g.db, data)
+        model.File.add(g.db, data, filename)
     except ValueError, exc:
         abort(409, description=str(exc))
 
     author_path = data['author_email'].replace('@', '_at_')
-    target_dir = join(app.config.get("UPLOAD_FOLDER", "files"), author_path, data['name'])
+    target_dir = join(app.config["UPLOAD_FOLDER"], author_path, data['name'])
     if not exists(target_dir):
         makedirs(target_dir)
     file.save(join(target_dir, filename))

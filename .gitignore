@@ -6,3 +6,4 @@ env
 manage.py
 files
 distribute-*.tar.gz
+build
