@@ -1,5 +1,6 @@
 *egg-info
 dev.db
+app.db
 dist
 env
 manage.py
