@@ -17,12 +17,26 @@ Base = declarative_base()
 Session = scoped_session(sessionmaker(bind=engine))
 
 
+def rebind(uri, echo=False):
+    """
+    Rebinds the session to a new SqlAlchemy URI.
+
+    .. warning: After calling this all remaining session will still be using
+                the old connection! Consider re-opening them!
+    """
+    global Session
+    engine = create_engine(uri)
+    if echo:
+        engine.echo = True
+    Session = scoped_session(sessionmaker(bind=engine))
+
+
 class User(Base):
     __tablename__ = 'user'
 
     email = Column(String, primary_key=True)
     password = Column(String)
-    
+
     @classmethod
     def by_auth(self, sess, email, passwd):
         q = sess.query(User)
@@ -33,6 +47,13 @@ class User(Base):
     def __init__(self, email, passwd):
         self.email = email
         self.passwd = md5(passwd).hexdigest() #TODO: add salt
+
+    def __eq__(self, other):
+
+        if not isinstance(other, User):
+            return False
+
+        return self.email == other.email
 
 
 class Project(Base):
@@ -45,10 +66,10 @@ class Project(Base):
     name = Column(String, primary_key=True)
     author_email = Column(String, ForeignKey('user.email'))
 
-    releases = relationship('Release', innerjoin=True, lazy="joined")
+    releases = relationship('Release', lazy="joined")
 
     @classmethod
-    def get(self, session, email, name):
+    def get_or_add(self, session, email, name):
         """
         Return a project reference. If the project does not yet exist, create a
         new one and return that one
@@ -77,6 +98,13 @@ class Project(Base):
         self.name = name
         self.author_email = email
 
+    def __eq__(self, other):
+
+        if not isinstance(other, Project):
+            return False
+
+        return other.name == self.name and other.author_email == self.author_email
+
 
 class Release(Base):
     __tablename__ = 'release'
@@ -101,6 +129,15 @@ class Release(Base):
 
     @classmethod
     def get(self, session, author_email, name, version):
+        q = session.query(Release)
+        q = q.filter(Release.author_email == author_email)
+        q = q.filter(Release.project == name)
+        q = q.filter(Release.version == version)
+        rel = q.first()
+        return rel
+
+    @classmethod
+    def get_or_add(self, session, author_email, name, version):
 
         # ensure the project exists
         Project.get(session, author_email, name)
@@ -121,12 +158,19 @@ class Release(Base):
 
     @classmethod
     def add(self, session, data):
-        proj = Project.get(session, data['author_email'], data['name'])
+        proj = Project.get_or_add(session, data['author_email'], data['name'])
 
         release = Release.get(session,
             data['author_email'],
             data['name'],
             data['version'])
+
+        if not release:
+            release = Release(
+                data['author_email'],
+                data['name'],
+                data['version'])
+            session.add(release)
 
         release.license = data["license"]
         release.metadata_version = data["metadata_version"]
@@ -139,10 +183,27 @@ class Release(Base):
         ##    data["author"], TODO: do sth. with this field?
         return release
 
+    @classmethod
+    def register(self):
+        """
+        Registers a new project release.
+        If the project does not yet exist, it will be created automatically
+        """
+        pass
+
     def __init__(self, author_email, project, version):
         self.author_email = author_email
         self.project = project
         self.version = version
+
+    def __eq__(self, other):
+
+        if not isinstance(other, Release):
+            return False
+
+        return (self.project == other.project
+            and self.author_email == other.author_email
+            and self.version == other.version)
 
 
 class File(Base):
@@ -154,11 +215,24 @@ class File(Base):
         {}
     )
 
+    project = Column(String)
+    author_email = Column(String)
+    version = Column(String)
+    md5_digest = Column(String(32))
+    comment = Column(String)
+    filetype = Column(String)
+    pyversion = Column(String)
+    protcol_version = Column(Integer)
+
+
     @classmethod
-    def add_meta(self, session, data):
+    def add(self, session, data):
 
         # ensure the release exists
-        Release.get(session, data['author_email'], data['name'], data['version'])
+        rel = Release.get(session, data['author_email'], data['name'], data['version'])
+        if not rel:
+            raise ValueError("Release for this file does not exist yet! "
+                    "Please register it first!")
 
         file = File(data["name"], data["author_email"], data["version"], data["md5_digest"])
 
@@ -175,12 +249,12 @@ class File(Base):
         self.version = version
         self.md5_digest = md5_digest
 
-    project = Column(String)
-    author_email = Column(String)
-    version = Column(String)
-    md5_digest = Column(String(32))
-    comment = Column(String)
-    filetype = Column(String)
-    pyversion = Column(String)
-    protcol_version = Column(Integer)
+    def __eq__(self, other):
 
+        if not isinstance(other, Release):
+            return False
+
+        return (self.project == other.project
+            and self.author_email == other.author_email
+            and self.version == other.version
+            and self.md5_digest == other.md5_digest)

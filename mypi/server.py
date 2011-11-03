@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, exists
 from os import makedirs
 
 from flask import Flask, g, abort, render_template
@@ -43,22 +43,24 @@ def _do_file_upload(data):
     file = request.files['content']
     filename = secure_filename(file.filename)
     try:
-        model.File.add_meta(g.db, data)
-        author_path = data['author_email'].replace('@', '_at_')
-        target_dir = join(app.config.get("UPLOAD_FOLDER", "files"), author_path, data['name'])
+        model.File.add(g.db, data)
+    except ValueError, exc:
+        abort(409, description=str(exc))
+
+    author_path = data['author_email'].replace('@', '_at_')
+    target_dir = join(app.config.get("UPLOAD_FOLDER", "files"), author_path, data['name'])
+    if not exists(target_dir):
         makedirs(target_dir)
-        file.save(join(target_dir, filename))
-        app.logger.debug("File stored to %s" % join(target_dir, filename))
-        g.db.commit()
-    except Exception, exc:
-        app.logger.error(exc)
-        g.db.rollback()
+    file.save(join(target_dir, filename))
+    app.logger.debug("File stored to %s" % join(target_dir, filename))
+    g.db.commit()
     return "OK"
 
 def _do_submit(data):
     app.logger.debug("Submitting a new packages")
     try:
         rel = model.Release.add(g.db, data)
+        g.db.commit()
         return "added release %s" % rel
     except ValueError, ex:
         return abort(409, description=str(ex))
