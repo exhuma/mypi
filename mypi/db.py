@@ -9,7 +9,7 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     ForeignKeyConstraint)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker, backref, relationship
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 
 
 engine = create_engine('sqlite:///dev.db', echo=True)
@@ -45,6 +45,8 @@ class Project(Base):
     name = Column(String, primary_key=True)
     author_email = Column(String, ForeignKey('user.email'))
 
+    releases = relationship('Release', innerjoin=True, lazy="joined")
+
     @classmethod
     def get(self, session, email, name):
         """
@@ -61,6 +63,15 @@ class Project(Base):
         proj = Project(name, email)
         session.add(proj)
         return proj
+
+    @classmethod
+    def all(self, session):
+        """
+        Return a list of projects
+        """
+        q = session.query(Project)
+        q = q.order_by(Project.name)
+        return q
 
     def __init__(self, name, email):
         self.name = name
@@ -132,6 +143,7 @@ class Release(Base):
         self.author_email = author_email
         self.project = project
         self.version = version
+
 
 class File(Base):
     __tablename__ = "file"

@@ -1,7 +1,7 @@
 from os.path import join
 from os import makedirs
 
-from flask import Flask, g, abort
+from flask import Flask, g, abort, render_template
 from werkzeug.utils import secure_filename
 
 from mypi import db as model
@@ -15,18 +15,15 @@ def before_request():
     app.logger.debug("Before Request")
     g.db = model.Session()
 
-
 @app.teardown_request
 def teardown_request(exception):
     app.logger.debug("Teardown request")
     g.db.close()
 
-
 @app.route("/", methods=['GET'])
 def hello():
-    model.User.by_auth(g.db, '', '')
-    return "Hello World!"
-
+    projects = model.Project.all(g.db)
+    return render_template("project_list.html", projects=projects)
 
 @app.route("/", methods=['POST'])
 def post():

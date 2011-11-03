@@ -1,0 +1,24 @@
+<html>
+    <body>
+        <table>
+            <tbody>
+                {% for p in projects %}
+                    <tr><th>{{p.name}}</th></tr>
+                    <tr>
+                        <td>
+                            <table>
+                                <tbody>
+                                    {% for r in p.releases %}
+                                        <tr>
+                                            <td>{{r.version}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>
