@@ -1,5 +1,7 @@
+*egg-info
 dev.db
 dist
 env
 manage.py
 files
+distribute-*.tar.gz
