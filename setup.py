@@ -15,6 +15,7 @@ setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     license="GPL",
+    include_package_data=True,
     install_requires = [
       'Flask==0.8',
       'sqlalchemy-migrate==0.7.2',
