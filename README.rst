@@ -61,19 +61,71 @@ In this case, ``local`` is the repository name configured in your ``.pypirc``.
 Installation (mod_wsgi)
 -----------------------
 
-.. note:: I'm still developing the deployment/configuration part. Once it's
-          finished, I'll test installation/config and write the notes down.
-          Until then, this installation section is merely a prod in the right
-          direction.
+The following will install the application in ``/var/www/mypi`` using a
+non-privileged user and inside a python virtual environment. The application
+will be made available under the URL ``http://your.server/mypi``. But this is
+fully configurable. Two files are of particylar interest:
 
-- Grab the source code
+- ``/var/www/mypi/wsgi/app.wsgi``
 
-- Run ``python setup.py install`` (Consider using virtualenv!)
+  This file contains the startup code and application configuration. You are
+  free to fool around in there as much as you like.
 
-- copy the example wsgi script to a location where apache can run it.
+- ``/etc/apache2/sites-available/mypi``
 
-- Configure apache to run that script
+  The apache config. Again, feel free to play around. Consult the ``mod_wsgi``
+  docs for more info.
 
+The installation procedure:
+
+- Grab the source code. Let's assume you downloaded a ``mypi-x.y.tar.gz`` and
+  stored it in ``/tmp``.
+
+- Add a new user (security)::
+
+      sudo useradd -m -r -d /var/www/mypi mypi
+
+- Switch to the new user account, and do the basic installation::
+
+      sudo -u mypi -i
+      cd
+      virtualenv --no-site-packages env
+      tar xf /tmp/mypi-x.y.tar.gz
+      cd mypi-x.y
+      ../env/bin/python setup.py install
+      cd ..
+
+- Prepare the apache environment::
+
+      mkdir wsgi
+      cp mypi-x.y/mod_wsgi/app.wsgi wsgi
+      cd wsgi
+
+- Prepare the database::
+
+      ../env/bin/migrate manage manage.py \
+            --repository=../mypi-x.y/db_repo \
+            --url=sqlite:///app.db
+      ../env/bin/python manage.py version_control
+      ../env/bin/python manage.py upgrade
+
+- Leave the unprivileged environment::
+
+      cd ..
+      exit
+
+- Configure apache::
+
+      sudo cp /var/www/mypi/mypi-x.y/mod_wsgi/example.apache.conf
+      /etc/apache2/sites-available/mypi
+      sudo edit /etc/apache2/sites-available/mypi
+      sudo a2ensite mypi
+      sudo a2enmod wsgi
+      sudo apache2ctl -t && sudo /etc/init.d/apache2 restart
+
+- Cleanup::
+
+      sudo rm -rf /var/www/mypi/mypi-x.y
 
 Development
 -----------
