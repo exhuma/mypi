@@ -118,7 +118,7 @@ The installation procedure:
 
       sudo cp /var/www/mypi/mypi-x.y/mod_wsgi/example.apache.conf
       /etc/apache2/sites-available/mypi
-      sudo edit /etc/apache2/sites-available/mypi
+      sudo ${EDITOR} /etc/apache2/sites-available/mypi
       sudo a2ensite mypi
       sudo a2enmod wsgi
       sudo apache2ctl -t && sudo /etc/init.d/apache2 restart
