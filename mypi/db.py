@@ -1,4 +1,6 @@
 from hashlib import md5
+from os import getcwd
+import logging
 
 from sqlalchemy import (
     create_engine,
@@ -16,6 +18,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 engine = create_engine('sqlite:///dev.db', echo=True)
 Base = declarative_base()
 Session = scoped_session(sessionmaker(bind=engine))
+LOG = logging.getLogger(__name__)
 
 
 def rebind(uri, echo=False):
@@ -26,6 +29,9 @@ def rebind(uri, echo=False):
                 the old connection! Consider re-opening them!
     """
     global Session
+    LOG.debug('Rebinding to {0}. CWD={1}'.format(
+        uri, getcwd()
+        ))
     engine = create_engine(uri)
     if echo:
         engine.echo = True
