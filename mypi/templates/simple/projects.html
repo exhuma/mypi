@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Private Package Index [simple]</title>
+</head>
+<body>
+
+    {% for p in projects %}
+    <a href="{{url_for('simple_project', project=p.name)}}">{{p.name}}</a><br />
+    {% endfor %}
+
+
+</body>
+</html>

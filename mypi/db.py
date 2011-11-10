@@ -1,6 +1,7 @@
 from hashlib import md5
 from os import getcwd
 import logging
+from datetime import datetime
 
 from sqlalchemy import (
     create_engine,
@@ -9,6 +10,7 @@ from sqlalchemy import (
     Unicode,
     Integer,
     ForeignKey,
+    DateTime,
     PrimaryKeyConstraint,
     ForeignKeyConstraint)
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,11 +40,68 @@ def rebind(uri, echo=False):
     Session = scoped_session(sessionmaker(bind=engine))
 
 
+class Project(Base):
+    __tablename__ = 'project'
+
+    name = Column(String, primary_key=True)
+    inserted = Column(DateTime, nullable=False, default=datetime.now)
+    updated = Column(DateTime, nullable=False, default=datetime.now)
+
+    releases = relationship('Release', lazy="joined")
+
+    @classmethod
+    def get_or_add(self, session, name):
+        """
+        Return a project reference. If the project does not yet exist, create a
+        new one and return that one
+        """
+        q = session.query(Project)
+        q = q.filter(Project.name == name)
+        proj = q.first()
+        if proj:
+            return proj
+
+        proj = Project(name)
+        session.add(proj)
+        return proj
+
+    @classmethod
+    def get(self, session, name):
+        """
+        Return a project reference
+        """
+        q = session.query(Project)
+        q = q.filter(Project.name == name)
+        proj = q.first()
+        return proj
+
+    @classmethod
+    def all(self, session):
+        """
+        Return a list of projects
+        """
+        q = session.query(Project)
+        q = q.order_by(Project.name)
+        return q
+
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+
+        if not isinstance(other, Project):
+            return False
+
+        return other.name == self.name and other.author_email == self.author_email
+
+
 class User(Base):
     __tablename__ = 'user'
 
     email = Column(String, primary_key=True)
     password = Column(String)
+    inserted = Column(DateTime, nullable=False, default=datetime.now)
+    updated = Column(DateTime, nullable=False, default=datetime.now)
 
     @classmethod
     def by_auth(self, sess, email, passwd):
@@ -63,79 +122,16 @@ class User(Base):
         return self.email == other.email
 
 
-class Project(Base):
-    __tablename__ = 'project'
-    __table_args__ = (
-        PrimaryKeyConstraint('name', 'author_email'),
-        {}
-    )
-
-    name = Column(String, primary_key=True)
-    author_email = Column(String, ForeignKey('user.email'))
-
-    releases = relationship('Release', lazy="joined")
-
-    @classmethod
-    def get_or_add(self, session, email, name):
-        """
-        Return a project reference. If the project does not yet exist, create a
-        new one and return that one
-        """
-        q = session.query(Project)
-        q = q.filter(Project.author_email == email)
-        q = q.filter(Project.name == name)
-        proj = q.first()
-        if proj:
-            return proj
-
-        proj = Project(name, email)
-        session.add(proj)
-        return proj
-
-    @classmethod
-    def get(self, session, email, name):
-        """
-        Return a project reference
-        """
-        q = session.query(Project)
-        q = q.filter(Project.author_email == email)
-        q = q.filter(Project.name == name)
-        proj = q.first()
-        return proj
-
-    @classmethod
-    def all(self, session):
-        """
-        Return a list of projects
-        """
-        q = session.query(Project)
-        q = q.order_by(Project.name)
-        return q
-
-    def __init__(self, name, email):
-        self.name = name
-        self.author_email = email
-
-    def __eq__(self, other):
-
-        if not isinstance(other, Project):
-            return False
-
-        return other.name == self.name and other.author_email == self.author_email
-
-
 class Release(Base):
     __tablename__ = 'release'
     __table_args__ = (
         PrimaryKeyConstraint('project', 'author_email', 'version'),
-        ForeignKeyConstraint(('project', 'author_email'),
-                             ('project.name', 'project.author_email')),
         {}
     )
 
     files = relationship('File')
 
-    project = Column(String)
+    project = Column(String, ForeignKey('project.name'))
     license = Column(String)
     metadata_version = Column(String)
     author = Column(String)
@@ -146,6 +142,8 @@ class Release(Base):
     version = Column(String)
     platform = Column(String)
     description = Column(String)
+    inserted = Column(DateTime, nullable=False, default=datetime.now)
+    updated = Column(DateTime, nullable=False, default=datetime.now)
 
     @classmethod
     def get(self, session, author_email, name, version):
@@ -178,7 +176,7 @@ class Release(Base):
 
     @classmethod
     def add(self, session, data):
-        proj = Project.get_or_add(session, data['author_email'], data['name'])
+        proj = Project.get_or_add(session, data['name'])
 
         release = Release.get(session,
             data['author_email'],
@@ -244,6 +242,8 @@ class File(Base):
     pyversion = Column(String)
     filename = Column(Unicode)
     protcol_version = Column(Integer)
+    inserted = Column(DateTime, nullable=False, default=datetime.now)
+    updated = Column(DateTime, nullable=False, default=datetime.now)
 
 
     @classmethod
@@ -273,6 +273,16 @@ class File(Base):
         q = session.query(File)
         q = q.filter(File.project == project)
         q = q.filter(File.md5_digest == md5)
+        return q.first()
+
+    @classmethod
+    def find_by_filename(self, session, project, filename):
+        """
+        Finds a file by filename
+        """
+        q = session.query(File)
+        q = q.filter(File.project == project)
+        q = q.filter(File.filename == filename)
         return q.first()
 
     def __init__(self, project, author_email, version, filename, md5_digest):

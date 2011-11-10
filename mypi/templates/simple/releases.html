@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Private Package Index [simple] - Releases for {{project.name}}</title>
+</head>
+<body>
+
+    {% for rel in project.releases %}
+        {% if rel.home_page and rel.home_page != 'UNKNOWN' %}
+            <a rel="homepage" href="{{rel.home_page}}">{{rel.version}} homepage</a><br />
+        {% endif %}
+        {% for file in rel.files %}
+            <a href="{{url_for('download', project=project.name,
+                filename=file.filename) }}#md5={{file.md5_digest}}">{{ file.filename }}</a><br />
+        {% endfor %}
+    {% endfor %}
+
+
+</body>
+</html>
+

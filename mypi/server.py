@@ -48,9 +48,9 @@ def project(author_email, name):
 
     return render_template("project.html", project=proj)
 
-@app.route("/download/<project>/<md5>")
-def download(project, md5):
-    file = model.File.find(g.db, project, md5)
+@app.route("/download/<project>/<filename>")
+def download(project, filename):
+    file = model.File.find_by_filename(g.db, project, filename)
     if not file:
         return abort(404, description="File not found")
 
@@ -61,6 +61,24 @@ def download(project, md5):
 
     return send_from_directory(
             folder, file.filename, as_attachment=True)
+
+@app.route("/simple")
+def simple():
+    """
+    List all available projects
+    """
+    projects = model.Project.all(g.db)
+    return render_template("simple/projects.html", projects=projects)
+
+@app.route("/simple/<project>")
+def simple_project(project):
+    """
+    List all available project releases
+    """
+    project = model.Project.get(g.db, project)
+    if not project:
+        abort(404)
+    return render_template("simple/releases.html", project=project)
 
 def _do_file_upload(data):
     from flask import request
