@@ -13,49 +13,32 @@
 {% endif %}
 
 <h2 id="releases">Releases</h2>
-<table id="release_list">
+{% for rel in package.releases %}
+<strong>Version</strong> {{ rel.version }}<br />
+<strong>Platform</strong> {{ rel.platform }}<br />
+<strong>License</strong> {{ rel.license }}<br />
+<strong>Author</strong> {{ rel.author.full_name }}<br />
+<strong>Date</strong> {{ rel.updated }}<br />
+<table id="file_list">
     <thead>
-        <tr>
-            <th>Version</th>
-            <th>Platform</th>
-            <th>License</th>
-            <th>Author</th>
-        </tr>
+        <th>File</th>
+        <th>Type</th>
+        <th>Python Version</th>
+        <th>MD5</th>
+        <th>Comment</th>
     </thead>
     <tbody>
-        {% for rel in package.releases %}
+        {% for file in rel.files %}
         <tr>
-            <td>{{ rel.version }}</td>
-            <td>{{ rel.platform }}</td>
-            <td>{{ rel.license }}</td>
-            <td>{{ rel.author.full_name }}</td>
-        </tr>
-        <tr>
-            <td colspan="4">
-                <table id="file_list">
-                    <thead>
-                        <th>File</th>
-                        <th>Type</th>
-                        <th>Python Version</th>
-                        <th>MD5</th>
-                        <th>Comment</th>
-                    </thead>
-                    <tbody>
-                        {% for file in rel.files %}
-                        <tr>
-                            <td><a href="{{url_for('download', package=package.name, filename=file.filename) }}#md5={{file.md5_digest}}">{{ file.filename }}</a></td>
-                            <td>{{ file.filetype}}</td>
-                            <td>{{ file.pyversion }}</td>
-                            <td>{{ file.md5_digest }}</td>
-                            <td>{{ file.comment }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </td>
+            <td><a href="{{url_for('download', package=package.name, filename=file.filename) }}#md5={{file.md5_digest}}">{{ file.filename }}</a></td>
+            <td>{{ file.filetype}}</td>
+            <td>{{ file.pyversion }}</td>
+            <td>{{ file.md5_digest }}</td>
+            <td>{{ file.comment }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+{% endfor %}
 
 {% endblock %}
