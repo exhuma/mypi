@@ -10,12 +10,10 @@ app = Flask(__name__)
 
 @app.before_request
 def before_request():
-    app.logger.debug("Before Request")
     g.db = model.Session()
 
 @app.teardown_request
 def teardown_request(exception):
-    app.logger.debug("Teardown request")
     g.db.close()
 
 @app.route("/", methods=['GET'])
@@ -30,7 +28,6 @@ def post():
     frm = request.form
 
     action_name = "_do_%s" % frm[":action"]
-    app.logger.debug("Performing %s" % action_name)
     action = globals().get(action_name, None)
     if action:
         return action(frm)
@@ -94,12 +91,10 @@ def _do_file_upload(data):
     if not exists(target_dir):
         makedirs(target_dir)
     file.save(join(target_dir, filename))
-    app.logger.debug("File stored to %s" % join(target_dir, filename))
     g.db.commit()
     return "OK"
 
 def _do_submit(data):
-    app.logger.debug("Submitting a new packages")
     try:
         rel = model.Release.add(g.db, data)
         g.db.commit()
