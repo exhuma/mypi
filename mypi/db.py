@@ -56,62 +56,6 @@ package_auth = Table(
     #doc="Defines access rights to packages for users"
     )
 
-class Package(Base):
-    __tablename__ = 'package'
-
-    name = Column(String, primary_key=True)
-    inserted = Column(DateTime, nullable=False, default=datetime.now)
-    updated = Column(DateTime, nullable=False, default=datetime.now)
-
-    users = relationship("User", secondary=package_auth, backref="packages")
-    releases = relationship('Release')
-
-    @classmethod
-    def get_or_add(self, session, name):
-        """
-        Return a package reference. If the package does not yet exist, create a
-        new one and return that one
-        """
-        q = session.query(Package)
-        q = q.filter(Package.name == name)
-        proj = q.first()
-        if proj:
-            return proj
-
-        proj = Package(name)
-        session.add(proj)
-        return proj
-
-    @classmethod
-    def get(self, session, name):
-        """
-        Return a package reference
-        """
-        q = session.query(Package)
-        q = q.filter(Package.name == name)
-        proj = q.first()
-        return proj
-
-    @classmethod
-    def all(self, session):
-        """
-        Return a list of packages
-        """
-        q = session.query(Package)
-        q = q.order_by(Package.name)
-        return q
-
-    def __init__(self, name):
-        self.name = name
-
-    def __eq__(self, other):
-
-        if not isinstance(other, Package):
-            return False
-
-        return other.name == self.name and other.author_email == self.author_email
-
-
 class User(Base):
     __tablename__ = 'user'
 
@@ -180,6 +124,7 @@ class Release(Base):
     )
 
     files = relationship('File')
+    author = relationship('User')
 
     package = Column(String, ForeignKey('package.name'))
     license = Column(String)
@@ -280,6 +225,62 @@ class Release(Base):
         return (self.package == other.package
             and self.author_email == other.author_email
             and self.version == other.version)
+
+
+class Package(Base):
+    __tablename__ = 'package'
+
+    name = Column(String, primary_key=True)
+    inserted = Column(DateTime, nullable=False, default=datetime.now)
+    updated = Column(DateTime, nullable=False, default=datetime.now)
+
+    users = relationship("User", secondary=package_auth, backref="packages")
+    releases = relationship('Release', order_by=Release.updated.desc())
+
+    @classmethod
+    def get_or_add(self, session, name):
+        """
+        Return a package reference. If the package does not yet exist, create a
+        new one and return that one
+        """
+        q = session.query(Package)
+        q = q.filter(Package.name == name)
+        proj = q.first()
+        if proj:
+            return proj
+
+        proj = Package(name)
+        session.add(proj)
+        return proj
+
+    @classmethod
+    def get(self, session, name):
+        """
+        Return a package reference
+        """
+        q = session.query(Package)
+        q = q.filter(Package.name == name)
+        proj = q.first()
+        return proj
+
+    @classmethod
+    def all(self, session):
+        """
+        Return a list of packages
+        """
+        q = session.query(Package)
+        q = q.order_by(Package.name)
+        return q
+
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+
+        if not isinstance(other, Package):
+            return False
+
+        return other.name == self.name and other.author_email == self.author_email
 
 
 class File(Base):

@@ -1,17 +1,16 @@
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <title>Private Package Index</title>
-</head>
-<body>
+{% extends "master.html" %}
+{% block title %}Package List{% endblock %}
+{% block content %}
 
-    <ul>
-        {% for p in packages %}
-        <li><a href="{{url_for('package', name=p.name)}}">{{p.name}}</a></li>
-        {% endfor %}
-    </ul>
+<h1>Available packages</h1>
+{% for p in packages %}
+<div class="package">
+    <a href="{{url_for('package', name=p.name)}}">{{p.name}}</a><br />
+    {{ p.releases[0].summary}}
+    <div class="release_date">Latest Release: {{ p.releases[0].updated }}</div>
+    <div class="author">Author: {{p.releases[0].author.full_name }}</div>
+    <br clear="both" />
+</div>
+{% endfor %}
 
-
-</body>
-</html>
+{% endblock %}

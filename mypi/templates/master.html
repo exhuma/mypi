@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        {% block head %}
+        <meta charset="UTF-8">
+        <link href='http://fonts.googleapis.com/css?family=Fondamento' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+        <title>{% block title %}{% endblock %} - MyPi</title>
+        {% endblock %}
+    </head>
+    <body>
+
+        <h1><a href="{{url_for('index')}}">MyPi</a></h1>
+        <div id="content">{% block content %}{% endblock %}</div>
+
+    </body>
+</html>
+

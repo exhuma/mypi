@@ -1,0 +1,108 @@
+BODY{
+    margin: 0;
+    padding: 0;
+}
+
+BODY>H1:first-child {
+    margin: 0;
+    padding: 0.2em 1em;
+    font-family: 'Fondamento', sans-serif;
+    color: #ffa;
+
+    background-image: linear-gradient(bottom, rgb(39,65,87) 28%, rgb(54,90,122) 73%);
+    background-image: -o-linear-gradient(bottom, rgb(39,65,87) 28%, rgb(54,90,122) 73%);
+    background-image: -moz-linear-gradient(bottom, rgb(39,65,87) 28%, rgb(54,90,122) 73%);
+    background-image: -webkit-linear-gradient(bottom, rgb(39,65,87) 28%, rgb(54,90,122) 73%);
+    background-image: -ms-linear-gradient(bottom, rgb(39,65,87) 28%, rgb(54,90,122) 73%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.28, rgb(39,65,87)),
+        color-stop(0.73, rgb(54,90,122))
+        );
+
+    -webkit-box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
+
+    text-shadow: -1px -1px 2px #000000;
+    filter: dropshadow(color=#000000, offx=-1, offy=-1);
+
+}
+
+H1 A{
+    text-decoration: none;
+    color: #ffa;
+}
+
+#content{
+    max-width: 800px;
+    margin: auto;
+}
+
+DIV.package {
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    -webkit-border-radius: 10px 10px 10px 10px;
+    border-radius: 10px 10px 10px 10px;
+    -webkit-box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.3);
+    border: 1px solid #eee;
+    padding: 2px 10px 2px 10px;
+}
+
+DIV.package:hover {
+    background-color: #eee;
+}
+
+DIV.package DIV.release_date {
+    color: #888;
+    float: right;
+}
+
+DIV.package DIV.author {
+    color: #888;
+    float: left;
+}
+
+#release_list {
+    border: 1px solid black;
+}
+
+#release_list{
+    border-spacing: 0;
+}
+
+#release_list TH, #release_list TD {
+    padding: 0.2em 1em;
+}
+
+#release_list TH{
+    text-align: left;
+    background: #eee;
+    border-bottom: 1px solid black;
+}
+
+#file_list {
+    border: 1px solid black;
+}
+
+#file_list{
+    border-spacing: 0;
+}
+
+#file_list TH, #file_list TD {
+    padding: 0.2em 1em;
+    white-space: nowrap;
+}
+
+#file_list TH{
+    text-align: left;
+    background: #eee;
+    border-bottom: 1px solid black;
+}

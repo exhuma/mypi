@@ -1,44 +1,47 @@
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <title>Package: {{package.name}}</title>
-</head>
-<body>
+{% extends "master.html" %}
+{% block title %}{{package.name}}{% endblock %}
+{% block content %}
+<h1>{{package.name}}</h1>
 
-    <h1>{{package.name}}</h1>
-    <h2>{{package.author_email}}</h2>
-    <pre>{{package.description}}</pre>
+<a href="#description">Description</a> &nbsp; | &nbsp; <a href="#releases">Releases</a>
+<br />
 
-    <h2>Releases</h2>
-    <table>
-        <thead>
-            <tr>
-               <th>Version</th>
-               <th>Platform</th>
-               <th>License</th>
-               <th>Author</th>
-            </tr>
-        </thead>
-       <tbody>
-          {% for rel in package.releases %}
-          <tr>
-              <td>{{ rel.version }}</td>
-              <td>{{ rel.platform }}</td>
-              <td>{{ rel.license }}</td>
-              <td>{{ rel.author }}</td>
-          </tr>
-          <tr>
-              <td colspan="4">
-                  <table>
-                      <thead>
-                          <th colspan="2">File</th>
-                          <th>Python Version</th>
-                          <th>MD5</th>
-                          <th>Comment</th>
-                      </thead>
-                     <tbody>
-                         {% for file in rel.files %}
+{% if package.description %}
+<div id="description">{{package.description}}</div>
+{% else %}
+<div id="description">{{package.releases[0].description}}</div>
+{% endif %}
+
+<h2 id="releases">Releases</h2>
+<table id="release_list">
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Platform</th>
+            <th>License</th>
+            <th>Author</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rel in package.releases %}
+        <tr>
+            <td>{{ rel.version }}</td>
+            <td>{{ rel.platform }}</td>
+            <td>{{ rel.license }}</td>
+            <td>{{ rel.author.full_name }}</td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <table id="file_list">
+                    <thead>
+                        <th>File</th>
+                        <th>Type</th>
+                        <th>Python Version</th>
+                        <th>MD5</th>
+                        <th>Comment</th>
+                    </thead>
+                    <tbody>
+                        {% for file in rel.files %}
                         <tr>
                             <td><a href="{{url_for('download', package=package.name, filename=file.filename) }}#md5={{file.md5_digest}}">{{ file.filename }}</a></td>
                             <td>{{ file.filetype}}</td>
@@ -47,12 +50,12 @@
                             <td>{{ file.comment }}</td>
                         </tr>
                         {% endfor %}
-                     </tbody>
-                  </table>
-              </td>
-          </tr>
-          {% endfor %}
-       </tbody>
-    </table>
-</body>
-</html>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
