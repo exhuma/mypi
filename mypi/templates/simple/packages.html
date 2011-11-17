@@ -6,8 +6,8 @@
 </head>
 <body>
 
-    {% for p in projects %}
-    <a href="{{url_for('simple_project', project=p.name)}}">{{p.name}}</a><br />
+    {% for p in packages %}
+    <a href="{{url_for('simple_package', package=p.name)}}">{{p.name}}</a><br />
     {% endfor %}
 
 

@@ -29,6 +29,5 @@ rebind('sqlite:///app.db', False)
 
 # Application config
 application.debug = False
-application.config['UPLOAD_FOLDER'] = abspath('files')
 
 # vim: set ft=python :

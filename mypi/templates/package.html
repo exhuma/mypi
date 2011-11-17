@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
    <meta charset="UTF-8">
-   <title>Project: {{project.name}}</title>
+   <title>Package: {{package.name}}</title>
 </head>
 <body>
 
-    <h1>{{project.name}}</h1>
-    <h2>{{project.author_email}}</h2>
-    <pre>{{project.description}}</pre>
+    <h1>{{package.name}}</h1>
+    <h2>{{package.author_email}}</h2>
+    <pre>{{package.description}}</pre>
 
     <h2>Releases</h2>
     <table>
@@ -21,7 +21,7 @@
             </tr>
         </thead>
        <tbody>
-          {% for rel in project.releases %}
+          {% for rel in package.releases %}
           <tr>
               <td>{{ rel.version }}</td>
               <td>{{ rel.platform }}</td>
@@ -40,7 +40,7 @@
                      <tbody>
                          {% for file in rel.files %}
                         <tr>
-                            <td><a href="{{url_for('download', project=project.name, md5=file.md5_digest) }}">{{ file.filename }}</a></td>
+                            <td><a href="{{url_for('download', package=package.name, filename=file.filename) }}#md5={{file.md5_digest}}">{{ file.filename }}</a></td>
                             <td>{{ file.filetype}}</td>
                             <td>{{ file.pyversion }}</td>
                             <td>{{ file.md5_digest }}</td>

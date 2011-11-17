@@ -1,9 +1,12 @@
+import logging
+
+logging.basicConfig()
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.CRITICAL)
+
 from mypi.db import rebind
 from mypi.server import app
-from os.path import abspath
 
-rebind('sqlite:///app.db', True)
+rebind('sqlite:///app.db', echo=True)
 
 app.debug = True
-app.config['UPLOAD_FOLDER'] = abspath('files')
 app.run(host="0.0.0.0", port=8080)

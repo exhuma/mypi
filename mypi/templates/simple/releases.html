@@ -1,22 +1,33 @@
 <!DOCTYPE HTML>
 <html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <title>Private Package Index [simple] - Releases for {{project.name}}</title>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Private Package Index [simple] - Releases for {{package.name}}</title>
+    </head>
+    <body>
 
-    {% for rel in project.releases %}
-        {% if rel.home_page and rel.home_page != 'UNKNOWN' %}
-            <a rel="homepage" href="{{rel.home_page}}">{{rel.version}} homepage</a><br />
-        {% endif %}
-        {% for file in rel.files %}
-            <a href="{{url_for('download', project=project.name,
-                filename=file.filename) }}#md5={{file.md5_digest}}">{{ file.filename }}</a><br />
-        {% endfor %}
-    {% endfor %}
+        <table border="1">
+            <thead>
+                <tr>
+                   <th>Homepage</th>
+                   <th>Filename</th>
+                   <th>MD5</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rel in package.releases %}
+                    {% for file in rel.files %}
+                        <tr>
+                            <td><a rel="homepage" href="{{rel.home_page}}">{{rel.home_page}}</a></td>
+                            <td><a href="{{url_for('download', package=package.name, filename=file.filename) }}#md5={{file.md5_digest}}">{{ file.filename }}</a></td>
+                            <td>{{ file.md5_digest }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
 
 
-</body>
+    </body>
 </html>
 

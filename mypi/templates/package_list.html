@@ -7,8 +7,8 @@
 <body>
 
     <ul>
-        {% for p in projects %}
-        <li><a href="{{url_for('project', name=p.name, author_email=p.author_email)}}">{{p.name}}</a></li>
+        {% for p in packages %}
+        <li><a href="{{url_for('package', name=p.name)}}">{{p.name}}</a></li>
         {% endfor %}
     </ul>
 
