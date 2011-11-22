@@ -39,9 +39,48 @@
             
   <div class="section" id="welcome-to-mypi-s-documentation">
 <h1>Welcome to mypi&#8217;s documentation!<a class="headerlink" href="#welcome-to-mypi-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
+<p>mypi is a &#8220;personal&#8221; package index for Python packages. By default, it&#8217;s
+possible to publish packages to the main python package index (the
+&#8220;cheeseshop&#8221;). But this list is public by default. Sometimes you cannot or
+don&#8217;t want to put packages on the public index. This is what mypi is for.</p>
+<p>Here are some situations where this may be true:</p>
 <ul class="simple">
+<li>Your company does not allow publishing of your work, or you are bound to a
+NDA. In either case, you cannot legally upload packages to pypi.</li>
+<li>You would like to have an &#8220;incubator&#8221;. A place where you can publish
+work-in-progress without the risk of breaking existing installs. As an
+example, a user could use <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">yourpackage</span></tt>, which will use pypi
+by default. here you would only have the stable releases available. If
+someone wants to live on the edge, s/he could simply run <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-i</span>
+<span class="pre">http://your-mypi-host</span> <span class="pre">yourpackage</span></tt> to get the latest release from your
+private index.</li>
 </ul>
+<p>But why would you even want to bother with a package index at all. The main
+reasons are:</p>
+<ul>
+<li><p class="first">You want a central authoritative repository for all deployed applications,
+without publishing to the world.</p>
+</li>
+<li><p class="first">You want to be able to use <tt class="docutils literal"><span class="pre">pip</span></tt> to install packages</p>
+<p>When typing <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">yourpackage</span></tt> it will search a specific package
+index (by default <tt class="docutils literal"><span class="pre">pypi.python.org</span></tt>) for <tt class="docutils literal"><span class="pre">yourpackage</span></tt>. If found, it
+will try to find the newest release (unless otherwise specified), download
+and install it.</p>
+<p>So if your package is not published on pypi, you won&#8217;t be able to use
+<tt class="docutils literal"><span class="pre">pip</span></tt>. With mypi, this is now possible.</p>
+</li>
+<li><p class="first">You want to be able to add your <em>private</em> packages to package dependencies.</p>
+<p>Similar to the <tt class="docutils literal"><span class="pre">pip</span></tt> command, package dependencies rely on an
+authoritative site like pypi to be able to search for the packages. If your
+packages are registered on mypi, dependency retrievel will be automatic.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>In order to use a custom package index in python, you need to configure
+<tt class="docutils literal"><span class="pre">pip</span></tt>, <tt class="docutils literal"><span class="pre">easy_install</span></tt> and <tt class="docutils literal"><span class="pre">python</span></tt> as needed.</p>
+<p>See <a class="reference external" href="index-config.html#index-config"><em>Index Configuration</em></a> for more details.</p>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -60,9 +99,8 @@
         <div class="sphinxsidebarwrapper">
             <h3><a href="#">Table Of Contents</a></h3>
             <ul>
-<li><a class="reference external" href="#">Welcome to mypi&#8217;s documentation!</a><ul>
-</ul>
-</li>
+<li><a class="reference external" href="#">Welcome to mypi&#8217;s documentation!</a></li>
+<li><a class="reference external" href="#usage">Usage</a></li>
 <li><a class="reference external" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 

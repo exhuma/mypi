@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Index Configuration &mdash; mypi v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1.0',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mypi v1.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">mypi v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="index-configuration">
+<span id="index-config"></span><h1>Index Configuration<a class="headerlink" href="#index-configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="downloading-installing-packages-from-the-index">
+<h2>Downloading / Installing packages <em>from</em> the index<a class="headerlink" href="#downloading-installing-packages-from-the-index" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The mypi index-urls all begin with <tt class="docutils literal"><span class="pre">/simple</span></tt></p>
+</div>
+<div class="section" id="pip-config-file">
+<h3>pip config file<a class="headerlink" href="#pip-config-file" title="Permalink to this headline">¶</a></h3>
+<p>The pip config file is locate in <tt class="docutils literal"><span class="pre">~/.pip/pip.conf</span></tt> (See <a class="reference external" href="http://www.pip-installer.org/en/latest/configuration.html">the pip docs</a> for
+more details).</p>
+<p>Example:</p>
+<div class="highlight-python"><pre>[global]
+timeout = 60
+extra-index-url = http://path/to/your/mypi/install/simple</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using <tt class="docutils literal"><span class="pre">extra-index-url</span></tt> adds a URL to the search. Using
+<tt class="docutils literal"><span class="pre">index-url</span></tt> will <em>replace</em> the search list!</p>
+</div>
+</div>
+<div class="section" id="pip-command-line">
+<h3>pip command-line<a class="headerlink" href="#pip-command-line" title="Permalink to this headline">¶</a></h3>
+<p>With <tt class="docutils literal"><span class="pre">pip</span></tt> you can specify an index URL directly on the command line:</p>
+<div class="highlight-python"><pre>pip install --extra-index-url http://path/to/your/index/simple yourpackage</pre>
+</div>
+<p>or, if you want to completely override pypi:</p>
+<div class="highlight-python"><pre>pip install -i http://path/to/your/index/simple yourpackage</pre>
+</div>
+</div>
+<div class="section" id="parsing-requirements-pip">
+<h3>Parsing requirements (pip)<a class="headerlink" href="#parsing-requirements-pip" title="Permalink to this headline">¶</a></h3>
+<p>It&#8217;s also possible to define your index-urls for package requirements. You can
+either use the <tt class="docutils literal"><span class="pre">setuptools</span></tt> option inside <tt class="docutils literal"><span class="pre">setup.py</span></tt>:</p>
+<div class="highlight-python"><pre>setup(...
+    dependency_links = ["http://path/to/mypi/simple/&lt;yourpackage&gt;"],
+     )</pre>
+</div>
+<p>or, you can add the <tt class="docutils literal"><span class="pre">index-url</span></tt>/<tt class="docutils literal"><span class="pre">extra-index-url</span></tt> to your
+<tt class="docutils literal"><span class="pre">requirements.txt</span></tt> file. See the <a class="reference external" href="http://www.pip-installer.org/en/latest/requirements.html">pip requirements</a> page for more info.</p>
+</div>
+<div class="section" id="easy-install">
+<h3>easy_install<a class="headerlink" href="#easy-install" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">easy_install</span></tt> is &#8220;the old way&#8221; of installing packages. It also allows you
+to specify and <tt class="docutils literal"><span class="pre">index-url</span></tt>. See the <a class="reference external" href="http://packages.python.org/distribute/easy_install.html#configuration-files">easy_install docs</a> for more info.</p>
+</div>
+</div>
+<div class="section" id="uploading-packages-to-your-index">
+<h2>Uploading packages to your index<a class="headerlink" href="#uploading-packages-to-your-index" title="Permalink to this headline">¶</a></h2>
+<p>To upload packages to pypi, you first need to register your package:</p>
+<div class="highlight-python"><pre>python setup.py register</pre>
+</div>
+<p>Next you can upload files to the index:</p>
+<div class="highlight-python"><pre>python setup.py sdist upload # uploads a source distribution</pre>
+</div>
+<p>In order to upload to your private index, you first need to edit <tt class="docutils literal"><span class="pre">~/.pypirc</span></tt>
+to define your index. Here&#8217;s an example:</p>
+<div class="highlight-python"><pre>[distutils]
+index-servers =
+    myindex
+    my2ndindex
+
+[myindex]
+repository: http://pyrepo:8080
+
+[my2ndindex]
+repository: http://pyrepo/mypi</pre>
+</div>
+<p>Then you can upload like so:</p>
+<div class="highlight-python"><pre>python setup.py register -r myindex
+python setup.py sdist upload -r myindex</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Index Configuration</a><ul>
+<li><a class="reference external" href="#downloading-installing-packages-from-the-index">Downloading / Installing packages <em>from</em> the index</a><ul>
+<li><a class="reference external" href="#pip-config-file">pip config file</a></li>
+<li><a class="reference external" href="#pip-command-line">pip command-line</a></li>
+<li><a class="reference external" href="#parsing-requirements-pip">Parsing requirements (pip)</a></li>
+<li><a class="reference external" href="#easy-install">easy_install</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#uploading-packages-to-your-index">Uploading packages to your index</a></li>
+</ul>
+</li>
+</ul>
+
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/index-config.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">mypi v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Michel Albert.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.4.
+    </div>
+  </body>
+</html>
