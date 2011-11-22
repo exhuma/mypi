@@ -3,8 +3,9 @@
 {% block content %}
 <h1>{{package.name}}</h1>
 
-<a href="#description">Description</a> &nbsp; | &nbsp; <a href="#releases">Releases</a>
-<br />
+<div id="nav">
+    <a href="#description">Description</a> &nbsp; | &nbsp; <a href="#releases">Releases</a>
+</div>
 
 {% if package.description %}
 <div id="description">{{package.description}}</div>
@@ -14,12 +15,14 @@
 
 <h2 id="releases">Releases</h2>
 {% for rel in package.releases %}
-<strong>Version</strong> {{ rel.version }}<br />
-<strong>Platform</strong> {{ rel.platform }}<br />
-<strong>License</strong> {{ rel.license }}<br />
-<strong>Author</strong> {{ rel.author.full_name }}<br />
-<strong>Date</strong> {{ rel.updated }}<br />
-<table id="file_list">
+<div class="release-meta">
+    <strong>Version</strong> {{ rel.version }}<br />
+    <strong>Platform</strong> {{ rel.platform }}<br />
+    <strong>License</strong> {{ rel.license }}<br />
+    <strong>Author</strong> {{ rel.author.full_name }}<br />
+    <strong>Date</strong> {{ rel.updated }}<br />
+</div>
+<table class="file-list">
     <thead>
         <th>File</th>
         <th>Type</th>

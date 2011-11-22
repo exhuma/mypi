@@ -11,7 +11,7 @@
     <body>
 
         <h1><a href="{{url_for('index')}}">MyPi</a></h1>
-        <div id="content">{% block content %}{% endblock %}</div>
+        {% block content %}{% endblock %}
 
     </body>
 </html>

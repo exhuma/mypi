@@ -3,8 +3,13 @@ BODY{
     padding: 0;
 }
 
+BODY>*{
+    max-width: 800px;
+    margin: auto;
+}
+
 BODY>H1:first-child {
-    margin: 0;
+    margin: 0 auto 1em auto;
     padding: 0.2em 1em;
     font-family: 'Fondamento', sans-serif;
     color: #ffa;
@@ -88,21 +93,27 @@ DIV.package DIV.author {
     border-bottom: 1px solid black;
 }
 
-#file_list {
+.file-list {
     border: 1px solid black;
 }
 
-#file_list{
+.file-list{
     border-spacing: 0;
 }
 
-#file_list TH, #file_list TD {
+.file-list TH, .file-list TD {
     padding: 0.2em 1em;
     white-space: nowrap;
 }
 
-#file_list TH{
+.file-list TH{
     text-align: left;
     background: #eee;
     border-bottom: 1px solid black;
+}
+
+
+.release-meta{
+    margin-top: 2em;
+    margin-bottom: 0.2em;
 }
