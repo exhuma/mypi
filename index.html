@@ -19,7 +19,8 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="mypi v1.0 documentation" href="#" /> 
+    <link rel="top" title="mypi v1.0 documentation" href="#" />
+    <link rel="next" title="Installation" href="install.html" /> 
   </head>
   <body>
     <div class="related">
@@ -28,6 +29,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="N">next</a> |</li>
         <li><a href="#">mypi v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -39,21 +43,52 @@
             
   <div class="section" id="welcome-to-mypi-s-documentation">
 <h1>Welcome to mypi&#8217;s documentation!<a class="headerlink" href="#welcome-to-mypi-s-documentation" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt><strong>Project state / Risk assessment</strong></dt>
+<dd><p class="first">First &#8220;public&#8221; release. Tested only <em>very</em> roughly. But as this is hardly
+a mission-critical service, using it is not very risky.</p>
+<p>Worst case scenario if thins break: You lose the index and automtic
+installation won&#8217;t work anymore. Assuming you keep your package sources
+around, you&#8217;ll be safe.</p>
+<p class="last">Note that this is <em>currently</em> not meant to be a persistent storage for
+your packages. If the project evolves (specifically the database and
+database migrations), this may change.</p>
+</dd>
+</dl>
+<div class="section" id="for-the-impatient">
+<h2>For the impatient:<a class="headerlink" href="#for-the-impatient" title="Permalink to this headline">¶</a></h2>
+<p>To get started the only two pieces of information you need is the
+installation, and configuration. Here you go:</p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference external" href="install.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference external" href="install.html#the-installation-procedure">The installation procedure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="index-config.html">Index Configuration</a><ul>
+<li class="toctree-l2"><a class="reference external" href="index-config.html#downloading-installing-packages-from-the-index">Downloading / Installing packages <em>from</em> the index</a></li>
+<li class="toctree-l2"><a class="reference external" href="index-config.html#uploading-packages-to-your-index">Uploading packages to your index</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="what-is-mypi">
+<h2>What is mypi?<a class="headerlink" href="#what-is-mypi" title="Permalink to this headline">¶</a></h2>
 <p>mypi is a &#8220;personal&#8221; package index for Python packages. By default, it&#8217;s
-possible to publish packages to the main python package index (the
-&#8220;cheeseshop&#8221;). But this list is public by default. Sometimes you cannot or
+possible to publish packages to <a class="reference external" href="http://pypi.python.org">the main python package</a> index (a.k.a.
+&#8220;cheeseshop&#8221;). But this list is <em>public</em> by default. Sometimes you cannot or
 don&#8217;t want to put packages on the public index. This is what mypi is for.</p>
 <p>Here are some situations where this may be true:</p>
 <ul class="simple">
-<li>Your company does not allow publishing of your work, or you are bound to a
+<li>Your company does not allow publishing of your work, or you are bound to an
 NDA. In either case, you cannot legally upload packages to pypi.</li>
 <li>You would like to have an &#8220;incubator&#8221;. A place where you can publish
 work-in-progress without the risk of breaking existing installs. As an
 example, a user could use <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">yourpackage</span></tt>, which will use pypi
-by default. here you would only have the stable releases available. If
+by default. Here you would only make the stable releases available. If
 someone wants to live on the edge, s/he could simply run <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-i</span>
 <span class="pre">http://your-mypi-host</span> <span class="pre">yourpackage</span></tt> to get the latest release from your
-private index.</li>
+incubator/private index.</li>
 </ul>
 <p>But why would you even want to bother with a package index at all. The main
 reasons are:</p>
@@ -67,7 +102,7 @@ index (by default <tt class="docutils literal"><span class="pre">pypi.python.org
 will try to find the newest release (unless otherwise specified), download
 and install it.</p>
 <p>So if your package is not published on pypi, you won&#8217;t be able to use
-<tt class="docutils literal"><span class="pre">pip</span></tt>. With mypi, this is now possible.</p>
+<tt class="docutils literal"><span class="pre">pip</span></tt>. With mypi, this is possible.</p>
 </li>
 <li><p class="first">You want to be able to add your <em>private</em> packages to package dependencies.</p>
 <p>Similar to the <tt class="docutils literal"><span class="pre">pip</span></tt> command, package dependencies rely on an
@@ -75,6 +110,84 @@ authoritative site like pypi to be able to search for the packages. If your
 packages are registered on mypi, dependency retrievel will be automatic.</p>
 </li>
 </ul>
+</div>
+<div class="section" id="alternatives">
+<h2>Alternatives<a class="headerlink" href="#alternatives" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="a-simple-indexable-web-folder">
+<h3>A simple indexable web-folder<a class="headerlink" href="#a-simple-indexable-web-folder" title="Permalink to this headline">¶</a></h3>
+<p>The python package managers (<tt class="docutils literal"><span class="pre">pip</span></tt>, <tt class="docutils literal"><span class="pre">easy_install</span></tt>) both allow you to
+specify URLs where you can package releases. They simply open these URLs and
+search for links matching package names.</p>
+<div class="section" id="advantages">
+<h4>Advantages<a class="headerlink" href="#advantages" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><em>Very</em> easy to set-up. Simply create a folder on the web-server and make it
+indexable. Done!</li>
+</ul>
+</div>
+<div class="section" id="disadvantages">
+<h4>Disadvantages<a class="headerlink" href="#disadvantages" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Package maintainers need write access to this folder.</li>
+<li>Auto-discovery does not work (as far as I know! Please correct me if I&#8217;m
+wrong). This means you won&#8217;t be able to do <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">yourpackage</span></tt>, but
+dependency resolution would still work in case of <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span>
+<span class="pre">install</span></tt>.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="djangopypi-chishop">
+<h3>djangopypi / chishop<a class="headerlink" href="#djangopypi-chishop" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://pypi.python.org/pypi/djangopypi">djangopypi</a> actually is implementing pretty much the same ideas as mypi. So
+instead of listing advantages/disadvantages, I am only going to list the major
+differences:</p>
+<ul class="simple">
+<li>As the name implies, djangopypi is based on django. As such, you need
+experience in django to set it up. mypi on the other hand is based on Flask.
+As such, when installing mypi, you won&#8217;t need to know <em>anything</em> in
+particular. After installation you will have a default WSGI application
+available which is deployable pretty much anywhere.</li>
+<li>django <em>requires</em> user&#8217;s to log in. See <a class="reference internal" href="#designdecisions"><em>Design Decisions</em></a> for more
+details.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="design-decisions">
+<span id="designdecisions"></span><h2>Design Decisions<a class="headerlink" href="#design-decisions" title="Permalink to this headline">¶</a></h2>
+<p>To give you an idea what this project is about, i&#8217;ll list my decisions for
+this project including their &#8220;state&#8221;.</p>
+<p>mypi should:</p>
+<ul>
+<li><p class="first">... be easy to install [<strong>good enough for now</strong> (could be improved)]</p>
+</li>
+<li><p class="first">... run in a virtualenv [<strong>works</strong>]</p>
+</li>
+<li><p class="first">... be well documented [<strong>should be okay</strong> (you&#8217;re reading it...)]</p>
+</li>
+<li><p class="first">... make it possible for package maintainers to upload packages via <tt class="docutils literal"><span class="pre">python</span>
+<span class="pre">setup.py</span> <span class="pre">sdist</span> <span class="pre">upload</span></tt> [<strong>OK</strong>]</p>
+</li>
+<li><p class="first">... allow <tt class="docutils literal"><span class="pre">easy_install</span> <span class="pre">my_package</span></tt> or <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">my_package</span></tt>.
+[<strong>OK</strong>] (see <a class="reference external" href="index-config.html#index-config"><em>Index Configuration</em></a>)</p>
+</li>
+<li><p class="first">... not necessarily require logins/passwords when uploading. This could be
+added later on but is not of biggest importance.</p>
+<p><strong>Rationale:</strong> In our current environment network access is restricted using
+a firewall. So authentication is not strictly necessary. This is
+dogfood-ware. I am writing this for myself, and I am practising YAGNI. If I
+see that there is a real demand for this feature, and if I find the spare
+time, I might go ahead and implement it. For now, it&#8217;s of no high importance
+though.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>For people that <em>need</em> this, this chould <em>in theory</em> be solved
+with WSGI middleware if really required until it&#8217;s built-in.</p>
+<p class="last">As a starting point:
+<a class="reference external" href="http://stackoverflow.com/questions/723856/wsgi-authentication-homegrown-authkit-openid">http://stackoverflow.com/questions/723856/wsgi-authentication-homegrown-authkit-openid</a></p>
+</div>
+</li>
+</ul>
+</div>
 </div>
 <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
@@ -99,11 +212,30 @@ packages are registered on mypi, dependency retrievel will be automatic.</p>
         <div class="sphinxsidebarwrapper">
             <h3><a href="#">Table Of Contents</a></h3>
             <ul>
-<li><a class="reference external" href="#">Welcome to mypi&#8217;s documentation!</a></li>
+<li><a class="reference external" href="#">Welcome to mypi&#8217;s documentation!</a><ul>
+<li><a class="reference external" href="#for-the-impatient">For the impatient:</a><ul>
+</ul>
+</li>
+<li><a class="reference external" href="#what-is-mypi">What is mypi?</a></li>
+<li><a class="reference external" href="#alternatives">Alternatives</a><ul>
+<li><a class="reference external" href="#a-simple-indexable-web-folder">A simple indexable web-folder</a><ul>
+<li><a class="reference external" href="#advantages">Advantages</a></li>
+<li><a class="reference external" href="#disadvantages">Disadvantages</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#djangopypi-chishop">djangopypi / chishop</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#design-decisions">Design Decisions</a></li>
+</ul>
+</li>
 <li><a class="reference external" href="#usage">Usage</a></li>
 <li><a class="reference external" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
+            <h4>Next topic</h4>
+            <p class="topless"><a href="install.html"
+                                  title="next chapter">Installation</a></p>
             <h3>This Page</h3>
             <ul class="this-page-menu">
               <li><a href="_sources/index.txt"
@@ -132,6 +264,9 @@ packages are registered on mypi, dependency retrievel will be automatic.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >next</a> |</li>
         <li><a href="#">mypi v1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
