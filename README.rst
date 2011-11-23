@@ -98,13 +98,13 @@ The installation procedure:
 - Prepare the apache environment::
 
       mkdir wsgi
-      cp mypi-x.y/mod_wsgi/app.wsgi wsgi
+      cp env/usr/share/docs/mypi/examples/app.wsgi wsgi
       cd wsgi
 
 - Prepare the database::
 
       ../env/bin/migrate manage manage.py \
-            --repository=../mypi-x.y/db_repo \
+            --repository=../env/usr/share/docs/mypi/db_repo \
             --url=sqlite:///app.db
       ../env/bin/python manage.py version_control
       ../env/bin/python manage.py upgrade
@@ -116,9 +116,10 @@ The installation procedure:
 
 - Configure apache::
 
-      sudo cp /var/www/mypi/mypi-x.y/mod_wsgi/example.apache.conf
-      /etc/apache2/sites-available/mypi
+      sudo cp ~mypi/env/usr/share/docs/mypi/examples/example.apache.conf \
+              /etc/apache2/sites-available/mypi
       sudo ${EDITOR} /etc/apache2/sites-available/mypi
+      sudo ${EDITOR} ~mypi/wsgi/app.wsgi
       sudo a2ensite mypi
       sudo a2enmod wsgi
       sudo apache2ctl -t && sudo /etc/init.d/apache2 restart
@@ -130,8 +131,15 @@ The installation procedure:
 Development
 -----------
 
-Note that this application currently uses a *very* naïve sqlite database. It
-could use some imprevements. The database is versioned using
-``sqlalchemy-migrate``. Be sure to read up on this before you make changes to
-the schema. For your convenience there is a quick example ``postinst.sh``
-script, which initialised the database and puts it into version-control.
+The database is versioned using ``sqlalchemy-migrate``. Be sure to read up on
+this before you make changes to the schema.
+
+.. important:: It turned out that certain schema modifications are not working
+               well with SQLite. For this reason, sqlalchemt-migrate is
+               currently not being used to it's fullest extent. It's primarily
+               used to create the database. New installations should
+               re-create the database from scratch. I know that this is far
+               from perfect. But so far I only tested with SQLite. If new
+               migrations are added which require a DB recycle, I will note
+               this in the installation docs!
+

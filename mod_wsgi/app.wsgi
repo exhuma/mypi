@@ -24,7 +24,8 @@ LOG = logging.getLogger(__name__)
 LOG.debug('Current path: {0}'.format(getcwd()))
 
 # The database connection string. The database should be first initialised
-# using sqlalchemy-migrate!
+# using sqlalchemy-migrate! This specific line will put the file relative to
+# this .wsgi script
 rebind('sqlite:///app.db', False)
 
 # Application config
