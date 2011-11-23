@@ -27,6 +27,13 @@ The installation procedure
 - Grab the source code. Let's assume you downloaded a ``mypi-x.y.tar.gz`` and
   stored it in ``/tmp``.
 
+  Tagged downloads:
+    * https://github.com/exhuma/mypi/tags
+
+  Sources:
+    * https://github.com/exhuma/mypi
+    * https://github.com/exhuma/mypi/downloads
+
 - Add a new user (security)::
 
       sudo useradd -m -r -d /var/www/mypi mypi
