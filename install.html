@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; mypi v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1.0',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mypi v1.0 documentation" href="index.html" />
+    <link rel="next" title="Index Configuration" href="index-config.html" />
+    <link rel="prev" title="Welcome to mypi’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="index-config.html" title="Index Configuration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to mypi’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">mypi v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The following will install the application in <tt class="docutils literal"><span class="pre">/var/www/mypi</span></tt> using a
+non-privileged user and inside a python virtual environment. The application
+will be made available under the URL <tt class="docutils literal"><span class="pre">http://your.server/mypi</span></tt>. But this is
+fully configurable. Two files are of particylar interest:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">/var/www/mypi/wsgi/app.wsgi</span></tt></p>
+<p>This file contains the startup code and application configuration. You are
+free to fool around in there as much as you like.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">/etc/apache2/sites-available/mypi</span></tt></p>
+<p>The apache config. Again, feel free to play around. Consult the <tt class="docutils literal"><span class="pre">mod_wsgi</span></tt>
+docs for more info.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="the-installation-procedure">
+<h2>The installation procedure<a class="headerlink" href="#the-installation-procedure" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Grab the source code. Let&#8217;s assume you downloaded a <tt class="docutils literal"><span class="pre">mypi-x.y.tar.gz</span></tt> and
+stored it in <tt class="docutils literal"><span class="pre">/tmp</span></tt>.</p>
+</li>
+<li><p class="first">Add a new user (security):</p>
+<div class="highlight-python"><pre>sudo useradd -m -r -d /var/www/mypi mypi</pre>
+</div>
+</li>
+<li><p class="first">Switch to the new user account, and do the basic installation:</p>
+<div class="highlight-python"><pre>sudo -u mypi -i
+cd
+virtualenv --no-site-packages env
+tar xf /tmp/mypi-x.y.tar.gz
+cd mypi-x.y
+../env/bin/python setup.py install
+cd ..</pre>
+</div>
+</li>
+<li><p class="first">Prepare the apache environment:</p>
+<div class="highlight-python"><pre>mkdir wsgi
+cp env/usr/share/docs/mypi/examples/app.wsgi wsgi
+cd wsgi</pre>
+</div>
+</li>
+<li><p class="first">Prepare the database:</p>
+<div class="highlight-python"><pre>../env/bin/migrate manage manage.py \
+      --repository=../env/usr/share/docs/mypi/db_repo \
+      --url=sqlite:///app.db
+../env/bin/python manage.py version_control
+../env/bin/python manage.py upgrade</pre>
+</div>
+</li>
+<li><p class="first">Leave the unprivileged environment:</p>
+<div class="highlight-python"><pre>cd ..
+exit</pre>
+</div>
+</li>
+<li><p class="first">Configure apache:</p>
+<div class="highlight-python"><pre>sudo cp ~mypi/env/usr/share/docs/mypi/examples/example.apache.conf \
+        /etc/apache2/sites-available/mypi
+sudo ${EDITOR} /etc/apache2/sites-available/mypi
+sudo ${EDITOR} ~mypi/wsgi/app.wsgi
+sudo a2ensite mypi
+sudo a2enmod wsgi
+sudo apache2ctl -t &amp;&amp; sudo /etc/init.d/apache2 restart</pre>
+</div>
+</li>
+<li><p class="first">Cleanup:</p>
+<div class="highlight-python"><pre>sudo rm -rf /var/www/mypi/mypi-x.y</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Installation</a><ul>
+<li><a class="reference external" href="#introduction">Introduction</a></li>
+<li><a class="reference external" href="#the-installation-procedure">The installation procedure</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">Welcome to mypi&#8217;s documentation!</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="index-config.html"
+                                  title="next chapter">Index Configuration</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/install.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="index-config.html" title="Index Configuration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to mypi’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">mypi v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Michel Albert.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.4.
+    </div>
+  </body>
+</html>
