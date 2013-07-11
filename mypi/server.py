@@ -17,7 +17,7 @@ def teardown_request(exception):
     g.db.close()
 
 @app.route("/", methods=['GET'])
-@app.route("/package")
+@app.route("/package/")
 def index():
     packages = model.Package.all(g.db)
     return render_template("package_list.html", packages=packages)
@@ -35,7 +35,8 @@ def post():
 
     return abort(501, description="Action %s is not yet implemented" % frm[":action"])
 
-@app.route("/package/<name>")
+@app.route("/<name>/")
+@app.route("/package/<name>/")
 def package(name):
     """
     Display the Package details
@@ -46,7 +47,7 @@ def package(name):
 
     return render_template("package.html", package=proj)
 
-@app.route("/download/<package>/<filename>")
+@app.route("/download/<package>/<filename>/")
 def download(package, filename):
     file = model.File.find_by_filename(g.db, package, filename)
     if not file:
@@ -59,7 +60,7 @@ def download(package, filename):
 
     return resp
 
-@app.route("/simple")
+@app.route("/simple/")
 def simple():
     """
     List all available packages
