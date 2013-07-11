@@ -35,6 +35,7 @@ def post():
 
     return abort(501, description="Action %s is not yet implemented" % frm[":action"])
 
+@app.route("/<name>/")
 @app.route("/package/<name>/")
 def package(name):
     """
