@@ -7,3 +7,6 @@ manage.py
 files
 distribute-*.tar.gz
 build
+venv
+*.pyc
+.env
