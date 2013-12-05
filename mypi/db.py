@@ -2,6 +2,7 @@ from hashlib import md5
 from os import getcwd
 import logging
 from datetime import datetime
+import hashlib
 
 from sqlalchemy import (
     create_engine,
@@ -286,9 +287,9 @@ class Package(Base):
 class File(Base):
     __tablename__ = "file"
     __table_args__ = (
-        PrimaryKeyConstraint('package', 'version', 'md5_digest'),
+        PrimaryKeyConstraint('package', 'version', 'filename'),
         ForeignKeyConstraint(('package', 'version'),
-                         ('release.package', 'release.version')),
+                             ('release.package', 'release.version')),
         {}
     )
 
@@ -326,10 +327,16 @@ class File(Base):
         file.filetype = data["filetype"]
         file.pyversion = data["pyversion"]
         file.protcol_version = data["protcol_version"]
-        # TODO: verify MD5sum
-        file.data = fileobj.read()
 
-        session.add(file)
+        file_data = fileobj.read()
+        file.data = file_data
+        file_digest = hashlib.md5(file_data).hexdigest()
+        
+        LOG.debug('MD5: %s' % file_digest)
+        if file.md5_digest != file_digest:
+            raise ValueError("md5 checksum error")
+        
+        file = session.merge(file, load=True)
 
     @classmethod
     def find(self, session, package, md5):

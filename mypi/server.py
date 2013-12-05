@@ -55,8 +55,8 @@ def download(package, filename):
 
     from werkzeug.wrappers import Response
     resp = Response(file.data)
-    resp.headers['Content-Type'] = 'application/octet-stream'
-    resp.headers['Content-Disposition'] = 'attachement'
+    resp.headers['Content-Type'] = 'application/x-gzip'
+    resp.headers['Content-Disposition'] = 'attachement; filename="%s"' % filename
 
     return resp
 
