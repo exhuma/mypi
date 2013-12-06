@@ -66,15 +66,5 @@ see INSTALL.rst
 Development
 -----------
 
-The database is versioned using ``sqlalchemy-migrate``. Be sure to read up on
-this before you make changes to the schema.
-
-.. important:: It turned out that certain schema modifications are not working
-               well with SQLite. For this reason, sqlalchemt-migrate is
-               currently not being used to it's fullest extent. It's primarily
-               used to create the database. New installations should
-               re-create the database from scratch. I know that this is far
-               from perfect. But so far I only tested with SQLite. If new
-               migrations are added which require a DB recycle, I will note
-               this in the installation docs!
-
+The database is versioned using ``alembic``. Be sure to read up on this before
+you make changes to the schema.

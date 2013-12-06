@@ -43,11 +43,7 @@ The installation procedure:
 
 - Prepare the database::
 
-      ../env/bin/migrate manage manage.py \
-            --repository=../env/usr/share/docs/mypi/db_repo \
-            --url=sqlite:///app.db
-      ../env/bin/python manage.py version_control
-      ../env/bin/python manage.py upgrade
+      ../env/bin/alembic upgrade head
 
 - Leave the unprivileged environment::
 
