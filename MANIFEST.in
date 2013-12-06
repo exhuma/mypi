@@ -1,5 +1,6 @@
 recursive-include mypi/templates *
 recursive-include mypi/static *
 recursive-include mod_wsgi *
-recursive-include db_repo *.sql *.py *.cfg README
+recursive-include alembic *.py *.mako README
 include README.rst
+include mypi/version.txt

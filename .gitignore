@@ -10,3 +10,4 @@ build
 venv
 *.pyc
 .env
+.exhuma
