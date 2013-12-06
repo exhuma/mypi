@@ -1,3 +1,6 @@
+"""
+Main web application code.
+"""
 from __future__ import print_function
 import logging
 
@@ -7,24 +10,40 @@ from werkzeug.utils import secure_filename
 from mypi import db as model
 
 LOG = logging.getLogger(__name__)
-app = Flask(__name__)
+APP = Flask(__name__)
 
-@app.before_request
+
+@APP.before_request
 def before_request():
+    """
+    Make the DB accessible for each request.
+    """
     g.db = model.Session()
 
-@app.teardown_request
+
+@APP.teardown_request
 def teardown_request(exception):
+    """
+    Close the DB connection after each request.
+    """
     g.db.close()
 
-@app.route("/", methods=['GET'])
-@app.route("/package/")
+
+@APP.route("/", methods=['GET'])
+@APP.route("/package/")
 def index():
+    """
+    Main index page.
+    """
     packages = model.Package.all(g.db)
     return render_template("package_list.html", packages=packages)
 
-@app.route("/", methods=['POST'])
+
+@APP.route("/", methods=['POST'])
 def post():
+    """
+    Handle POST requests to the web root.
+    """
     from flask import request
     frm = request.form
 
@@ -34,34 +53,42 @@ def post():
     if action:
         return action(frm)
 
-    return abort(501, description="Action %s is not yet implemented" % frm[":action"])
+    return abort(501, description=(
+        "Action %s is not yet implemented" % frm[":action"]))
 
-@app.route("/<name>/")
-@app.route("/package/<name>/")
+
+@APP.route("/<name>/")
+@APP.route("/package/<name>/")
 def package(name):
     """
     Display the Package details
     """
     proj = model.Package.get(g.db, name)
     if not proj:
-        return abort(404, description = "No such package")
+        return abort(404, description="No such package")
 
     return render_template("package.html", package=proj)
 
-@app.route("/download/<package>/<filename>/")
-def download(package, filename):
-    file = model.File.find_by_filename(g.db, package, filename)
-    if not file:
+
+@APP.route("/download/<pkg>/<filename>/")
+def download(pkg, filename):
+    """
+    Handle package downloads.
+    """
+    file_ = model.File.find_by_filename(g.db, pkg, filename)
+    if not file_:
         return abort(404, description="File not found")
 
     from werkzeug.wrappers import Response
-    resp = Response(file.data)
+    resp = Response(file_.data)
     resp.headers['Content-Type'] = 'application/x-gzip'
-    resp.headers['Content-Disposition'] = 'attachement; filename="%s"' % filename
+    resp.headers['Content-Disposition'] = (
+        'attachement; filename="%s"' % filename)
 
     return resp
 
-@app.route("/simple/")
+
+@APP.route("/simple/")
 def simple():
     """
     List all available packages
@@ -69,23 +96,28 @@ def simple():
     packages = model.Package.all(g.db)
     return render_template("simple/packages.html", packages=packages)
 
-@app.route("/simple/<package>")
-@app.route("/simple/<package>/")
-def simple_package(package):
+
+@APP.route("/simple/<pkg>")
+@APP.route("/simple/<pkg>/")
+def simple_package(pkg):
     """
-    List all available package releases
+    List all available package releases.
     """
-    package = model.Package.get(g.db, package)
-    if not package:
-        abort(404, description = "No such package")
-    return render_template("simple/releases.html", package=package)
+    pkg = model.Package.get(g.db, pkg)
+    if not pkg:
+        abort(404, description="No such package")
+    return render_template("simple/releases.html", package=pkg)
+
 
 def _do_file_upload(data):
+    """
+    Store the file in the database.
+    """
     from flask import request
-    file = request.files['content']
-    filename = secure_filename(file.filename)
+    file_ = request.files['content']
+    filename = secure_filename(file_.filename)
 
-    model.File.upload(g.db, data, filename, file.stream)
+    model.File.upload(g.db, data, filename, file_.stream)
 
     try:
         g.db.commit()
@@ -94,7 +126,11 @@ def _do_file_upload(data):
         abort(409, description="This file exists already!")
     return "OK"
 
+
 def _do_submit(data):
+    """
+    Stores a package submission in the database.
+    """
     try:
         rel = model.Release.register(g.db, data)
         g.db.commit()
@@ -105,4 +141,4 @@ def _do_submit(data):
 
 if __name__ == "__main__":
     print(">>> Running DEVELOPMENT server!")
-    app.run(host='0.0.0.0', debug=True)
+    APP.run(host='0.0.0.0', debug=True)

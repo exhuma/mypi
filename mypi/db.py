@@ -19,7 +19,6 @@ from sqlalchemy import (
     ForeignKeyConstraint)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
-from sqlalchemy.exc import IntegrityError
 
 
 engine = create_engine('sqlite:///dev.db', echo=True)
@@ -31,31 +30,18 @@ LOG = logging.getLogger(__name__)
 GRANT_READ = 1
 GRANT_WRITE = 2
 
-def rebind(uri, echo=False):
-    """
-    Rebinds the session to a new SqlAlchemy URI.
-
-    .. warning: After calling this all remaining session will still be using
-                the old connection! Consider re-opening them!
-    """
-    global Session
-    LOG.debug('Rebinding to {0}. CWD={1}'.format(
-        uri, getcwd()
-        ))
-    engine = create_engine(uri)
-    if echo:
-        engine.echo = True
-    Session = scoped_session(sessionmaker(bind=engine))
 
 package_auth = Table(
     'package_auth', Base.metadata,
     Column('user', String, ForeignKey('user.email')),
     Column('package', String, ForeignKey('package.name')),
     Column('grant_mask', Integer,
-        doc="Bitmask defining the rights granted to this user for this project"),
+           doc=("Bitmask defining the rights granted to this user for this "
+                "project")),
     PrimaryKeyConstraint('user', 'package'),
-    #doc="Defines access rights to packages for users"
-    )
+    # doc="Defines access rights to packages for users"
+)
+
 
 class User(Base):
     __tablename__ = 'user'
@@ -101,7 +87,7 @@ class User(Base):
     def __init__(self, email, passwd=None, name=None):
         self.email = email
         if passwd:
-            self.passwd = md5(passwd).hexdigest() #TODO: add salt
+            self.passwd = md5(passwd).hexdigest()  # TODO: add salt
         if name:
             self.full_name = name
         # TODO: Create verification-token and send verification-email
@@ -180,7 +166,9 @@ class Release(Base):
 
         # now let's see if we have a matching user, and if he/she may write to
         # this package
-        user = User.get_or_add(session, data['author_email'], name=data['author'])
+        user = User.get_or_add(session,
+                               data['author_email'],
+                               name=data['author'])
 
         if user in package.users:
             # TODO: Check access rights and bail out on denial
@@ -223,9 +211,9 @@ class Release(Base):
         if not isinstance(other, Release):
             return False
 
-        return (self.package == other.package
-            and self.author_email == other.author_email
-            and self.version == other.version)
+        return (self.package == other.package and
+                self.author_email == other.author_email and
+                self.version == other.version)
 
 
 class Package(Base):
@@ -281,7 +269,8 @@ class Package(Base):
         if not isinstance(other, Package):
             return False
 
-        return other.name == self.name and other.author_email == self.author_email
+        return (other.name == self.name and
+                other.author_email == self.author_email)
 
 
 class File(Base):
@@ -306,7 +295,6 @@ class File(Base):
     inserted = Column(DateTime, nullable=False, default=datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.now)
 
-
     @classmethod
     def upload(self, session, data, filename, fileobj):
         """
@@ -315,28 +303,31 @@ class File(Base):
         """
 
         # ensure the release exists
-        rel = Release.get(session, data['author_email'], data['name'], data['version'])
+        rel = Release.get(session,
+                          data['author_email'],
+                          data['name'],
+                          data['version'])
         if not rel:
             raise ValueError("Release for this file does not exist yet! "
-                    "Please register it first!")
+                             "Please register it first!")
 
-        file = File(data["name"], data["author_email"], data["version"],
-                filename, data["md5_digest"])
+        file_ = File(data["name"], data["author_email"], data["version"],
+                     filename, data["md5_digest"])
 
-        file.comment = data["comment"]
-        file.filetype = data["filetype"]
-        file.pyversion = data["pyversion"]
-        file.protcol_version = data["protcol_version"]
+        file_.comment = data["comment"]
+        file_.filetype = data["filetype"]
+        file_.pyversion = data["pyversion"]
+        file_.protcol_version = data["protcol_version"]
 
         file_data = fileobj.read()
-        file.data = file_data
+        file_.data = file_data
         file_digest = hashlib.md5(file_data).hexdigest()
-        
-        LOG.debug('MD5: %s' % file_digest)
-        if file.md5_digest != file_digest:
+
+        LOG.debug('MD5: %s', file_digest)
+        if file_.md5_digest != file_digest:
             raise ValueError("md5 checksum error")
-        
-        file = session.merge(file, load=True)
+
+        file_ = session.merge(file_, load=True)
 
     @classmethod
     def find(self, session, package, md5):
@@ -370,7 +361,7 @@ class File(Base):
         if not isinstance(other, Release):
             return False
 
-        return (self.package == other.package
-            and self.author_email == other.author_email
-            and self.version == other.version
-            and self.md5_digest == other.md5_digest)
+        return (self.package == other.package and
+                self.author_email == other.author_email and
+                self.version == other.version and
+                self.md5_digest == other.md5_digest)
