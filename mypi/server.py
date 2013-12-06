@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 
 from flask import Flask, g, abort, render_template
@@ -103,4 +104,5 @@ def _do_submit(data):
 
 
 if __name__ == "__main__":
-    app.run()
+    print(">>> Running DEVELOPMENT server!")
+    app.run(host='0.0.0.0', debug=True)
