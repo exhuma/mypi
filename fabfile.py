@@ -24,8 +24,8 @@ def develop():
     db_url = fab.prompt(clr.white('Database URL:', bold=True),
                         default='sqlite:///dev.db')
     dev_conf_name = '.exhuma/mypi/app.ini'
-    with open(dev_conf_name, 'w') as fp:
-        fp.write(CONFIG_TEMPLATE.format(db_url=db_url))
+    with open(dev_conf_name, 'w') as fptr:
+        fptr.write(CONFIG_TEMPLATE.format(db_url=db_url))
         print(clr.white('Development config saved to ', bold=True) +
               clr.green(dev_conf_name))
     print(clr.white('Installing project into development environment...',
