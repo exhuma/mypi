@@ -54,21 +54,21 @@ class User(Base):
     inserted = Column(DateTime, nullable=False, default=datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.now)
 
-    @classmethod
-    def by_auth(self, sess, email, passwd):
+    @staticmethod
+    def by_auth(sess, email, passwd):
         q = sess.query(User)
         q = q.filter(User.email == email)
         q = q.filter(User.password == md5(passwd).hexdigest())
         return q.first()
 
-    @classmethod
-    def by_email(self, sess, email):
+    @staticmethod
+    def by_email(sess, email):
         q = sess.query(User)
         q = q.filter(User.email == email)
         return q.first()
 
-    @classmethod
-    def get_or_add(self, session, email, passwd=None, name=None):
+    @staticmethod
+    def get_or_add(session, email, passwd=None, name=None):
         """
         Return a user reference. If the user does not yet exist, create a new
         one and return it
@@ -125,8 +125,8 @@ class Release(Base):
     inserted = Column(DateTime, nullable=False, default=datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.now)
 
-    @classmethod
-    def get(self, session, author_email, name, version):
+    @staticmethod
+    def get(session, author_email, name, version):
         q = session.query(Release)
         q = q.filter(Release.author_email == author_email)
         q = q.filter(Release.package == name)
@@ -134,8 +134,8 @@ class Release(Base):
         rel = q.first()
         return rel
 
-    @classmethod
-    def get_or_add(self, session, author_email, name, version):
+    @staticmethod
+    def get_or_add(session, author_email, name, version):
 
         # ensure the package exists
         Package.get(session, author_email, name)
@@ -154,8 +154,8 @@ class Release(Base):
         session.add(rel)
         return rel
 
-    @classmethod
-    def register(self, session, data):
+    @staticmethod
+    def register(session, data):
         """
         Takes metadata sent by "setup.py register" to create a new release
         """
@@ -225,8 +225,8 @@ class Package(Base):
     users = relationship("User", secondary=package_auth, backref="packages")
     releases = relationship('Release', order_by=Release.updated.desc())
 
-    @classmethod
-    def get_or_add(self, session, name):
+    @staticmethod
+    def get_or_add(session, name):
         """
         Return a package reference. If the package does not yet exist, create a
         new one and return that one
@@ -241,8 +241,8 @@ class Package(Base):
         session.add(proj)
         return proj
 
-    @classmethod
-    def get(self, session, name):
+    @staticmethod
+    def get(session, name):
         """
         Return a package reference
         """
@@ -251,8 +251,8 @@ class Package(Base):
         proj = q.first()
         return proj
 
-    @classmethod
-    def all(self, session):
+    @staticmethod
+    def all(session):
         """
         Return a list of packages
         """
@@ -294,8 +294,8 @@ class File(Base):
     inserted = Column(DateTime, nullable=False, default=datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.now)
 
-    @classmethod
-    def upload(self, session, data, filename, fileobj):
+    @staticmethod
+    def upload(session, data, filename, fileobj):
         """
         This method takes a dictionary of data as sent by "setup.py upload" to
         create new files.
@@ -328,8 +328,8 @@ class File(Base):
 
         file_ = session.merge(file_, load=True)
 
-    @classmethod
-    def find(self, session, package, md5):
+    @staticmethod
+    def find(session, package, md5):
         """
         Finds a file by package and MD5-digest
         """
@@ -338,8 +338,8 @@ class File(Base):
         q = q.filter(File.md5_digest == md5)
         return q.first()
 
-    @classmethod
-    def find_by_filename(self, session, package, filename):
+    @staticmethod
+    def find_by_filename(session, package, filename):
         """
         Finds a file by filename
         """
