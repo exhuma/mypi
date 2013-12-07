@@ -1,5 +1,4 @@
 from hashlib import md5
-from os import getcwd
 import logging
 from datetime import datetime
 import hashlib
