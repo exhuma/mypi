@@ -29,7 +29,7 @@ from sqlalchemy import (
 
 def upgrade():
     op.create_table(
-        'users_table',
+        'user',
         Column('email', String, primary_key=True,
                doc="An email uniquely identifies a user account"),
         Column('full_name', String,
@@ -50,7 +50,7 @@ def upgrade():
         #doc="A user in the system",
     )
     op.create_table(
-        'packages_table',
+        'package',
         Column('name', String, primary_key=True),
         Column('inserted', DateTime, nullable=False, default=func.now()),
         Column('updated', DateTime, nullable=False, default=func.now()),
@@ -68,7 +68,7 @@ def upgrade():
         #doc="Defines access rights to packages for users"
     )
     op.create_table(
-        'release_table',
+        'release',
         Column('package', String, ForeignKey('package.name'),
                doc="The reference to the package"),
         Column('license', String,
@@ -97,7 +97,7 @@ def upgrade():
         #doc="Metadata for one package release"
     )
     op.create_table(
-        'files_table',
+        'file',
         Column('package', String,
                doc="The package to which this file belongs to"),
         Column('author_email', String,
@@ -130,8 +130,8 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('files_table')
-    op.drop_table('release_table')
-    op.drop_table('packages_table')
-    op.drop_table('users_table')
+    op.drop_table('file')
+    op.drop_table('releas')
+    op.drop_table('package')
+    op.drop_table('user')
     op.drop_table('package_auth')

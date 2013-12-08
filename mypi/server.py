@@ -7,7 +7,7 @@ import logging
 from flask import Flask, g, abort, render_template
 from werkzeug.utils import secure_filename
 
-from mypi import db as model
+from mypi import db as model, App
 
 LOG = logging.getLogger(__name__)
 APP = Flask(__name__)
@@ -18,7 +18,7 @@ def before_request():
     """
     Make the DB accessible for each request.
     """
-    g.db = model.Session()
+    g.app = App(model.Session())
 
 
 @APP.teardown_request

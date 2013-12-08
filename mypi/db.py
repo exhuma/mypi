@@ -56,7 +56,7 @@ class User(Base):
     def __init__(self, email, passwd=None, name=None):
         self.email = email
         if passwd:
-            self.passwd = md5(passwd).hexdigest()  # TODO: add salt
+            self.password = md5(passwd).hexdigest()  # TODO: add salt
         if name:
             self.full_name = name
         # TODO: Create verification-token and send verification-email
