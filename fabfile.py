@@ -23,11 +23,21 @@ def develop():
     fab.local('mkdir -p .exhuma/mypi')
     db_url = fab.prompt(clr.white('Database URL:', bold=True),
                         default='sqlite:///dev.db')
+    db_url_test = fab.prompt(clr.white('Database URL (testing):', bold=True),
+                             default='sqlite:///test.db')
+
     dev_conf_name = '.exhuma/mypi/app.ini'
     with open(dev_conf_name, 'w') as fptr:
         fptr.write(CONFIG_TEMPLATE.format(db_url=db_url))
         print(clr.white('Development config saved to ', bold=True) +
               clr.green(dev_conf_name))
+
+    test_conf_name = '.exhuma/mypi/test.ini'
+    with open(test_conf_name, 'w') as fptr:
+        fptr.write(CONFIG_TEMPLATE.format(db_url=db_url_test))
+        print(clr.white('Development config saved to ', bold=True) +
+              clr.green(test_conf_name))
+
     print(clr.white('Installing project into development environment...',
                     bold=True))
     fab.local('./.env/bin/pip install -e .')
