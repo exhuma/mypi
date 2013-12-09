@@ -1,11 +1,13 @@
 from __future__ import print_function
 import unittest
+from cStringIO import StringIO
 
 from config_resolver import Config
 
 from mypi import App
 
 
+@unittest.skip('test not yet implemented')
 class FlaskrTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -59,7 +61,6 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(response.text,
                          response2.text)
 
-
     def test_download(self):
         response = self.app.get('/download/mypackage/myfilename/')
         self.assertEqual(
@@ -100,7 +101,6 @@ class FlaskrTestCase(unittest.TestCase):
         response2 = self.app.get('/simple/mypackage/')
         self.assertEqual(response.text,
                          response2.text)
-
 
     def test_upload(self):
         response = self.app.post('/', data={
