@@ -31,6 +31,9 @@ def develop():
     print(clr.white('Installing project into development environment...',
                     bold=True))
     fab.local('./.env/bin/pip install -e .')
+    with fab.settings(warn_only=True):
+        fab.local('./.env/bin/pip install pyinotify')
+    fab.local('./.env/bin/pip install sniffer mock')
     fab.execute(upgrade_local_db)
 
 
