@@ -221,3 +221,31 @@ class TestReleaseManager(TestCase):
         }
 
         self.assertEqual(expected, result)
+
+    def test_get_or_add(self):
+        release = self.manager.get_or_add(
+            'jane.doe@example.com',
+            'other_release',
+            '2.0')
+        self.session.commit()
+        res = self.conn.execute('select count(*) from release')
+        self.assertEqual(res.scalar(), 2)
+
+        expected = {
+            'package': 'other_release',
+            'author_email': 'jane.doe@example.com',
+            'version': '2.0',
+        }
+
+        result = {
+            'package': release.package,
+            'author_email': release.author_email,
+            'version': release.version,
+        }
+
+        self.assertEqual(expected, result)
+
+
+    def test_create(self):
+        release = self.manager.create(email, name, version)
+        self.fail()
