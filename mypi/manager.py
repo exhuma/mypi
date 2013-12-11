@@ -1,7 +1,6 @@
 from logging import getLogger
-from hashlib import md5
 
-from .db import User, Package, Release, File
+from .db import User, Package, Release, File, hashfunc
 
 LOG = getLogger(__name__)
 
@@ -15,7 +14,14 @@ class Manager(object):
 class UserManager(Manager):
     """
     Manages user entities.
+
+    :param session: A database session.
+    :param hashfunc: A function used to hash user passwords.
     """
+
+    def __init__(self, session, hashfunc=hashfunc):
+        super(UserManager, self).__init__(session)
+        self._hashfunc = hashfunc
 
     def by_auth(self, email, passwd):
         """
@@ -25,7 +31,8 @@ class UserManager(Manager):
         """
         q = self._session.query(User)
         q = q.filter(User.email == email)
-        q = q.filter(User.password == md5(passwd).hexdigest())
+        # TODO: add salt
+        q = q.filter(User.password == self._hashfunc(passwd))
         return q.first()
 
     def by_email(self, email):
@@ -49,7 +56,8 @@ class UserManager(Manager):
         if user:
             return user
 
-        user = User(email, passwd, name)
+        # TODO: add salt
+        user = User(email, self._hashfunc(passwd), name)
         self._session.add(user)
         return user
 

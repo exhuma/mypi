@@ -41,6 +41,14 @@ package_auth = Table(
 )
 
 
+def hashfunc(cleartext):
+    """
+    Function used to store passwords safely.
+    """
+    # TODO: use something safer like bcrypt.
+    return md5(cleartext).hexdigest()
+
+
 class User(Base):
     __tablename__ = 'user'
 
@@ -56,7 +64,7 @@ class User(Base):
     def __init__(self, email, passwd=None, name=None):
         self.email = email
         if passwd:
-            self.password = md5(passwd).hexdigest()  # TODO: add salt
+            self.password = passwd
         if name:
             self.full_name = name
         # TODO: Create verification-token and send verification-email
