@@ -1,3 +1,4 @@
+from textwrap import dedent
 from hashlib import md5
 from datetime import datetime
 from unittest import TestCase
@@ -13,6 +14,14 @@ from mypi.manager import (
     ReleaseManager,
     PackageManager,
     FileManager)
+
+
+def setUpModule():
+    upgrade_db()
+
+
+def tearDownModule():
+    unlink('test.db')
 
 
 def upgrade_db():
@@ -38,14 +47,12 @@ class TestUserManager(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        upgrade_db()
         cfg = Config('exhuma', 'mypi', filename='test.ini')
         cls.engine = create_engine(cfg.get('sqlalchemy', 'url'))
         cls.conn = cls.engine.connect()
 
     @classmethod
     def tearDownClass(cls):
-        unlink('test.db')
         cls.conn.close()
 
     def setUp(self):
@@ -112,3 +119,105 @@ class TestUserManager(TestCase):
         self.assertEqual(pwd, md5('foo').hexdigest())
         res = self.conn.execute('select count(*) from user')
         self.assertEqual(res.scalar(), 2)
+
+
+class TestReleaseManager(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cfg = Config('exhuma', 'mypi', filename='test.ini')
+        cls.engine = create_engine(cfg.get('sqlalchemy', 'url'))
+        cls.conn = cls.engine.connect()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.conn.close()
+
+    def setUp(self):
+        self.now = datetime.now()
+        self.conn.execute(dedent(
+            '''\
+            INSERT INTO release (
+                package,
+                license,
+                metadata_version,
+                home_page,
+                author_email,
+                download_url,
+                summary,
+                version,
+                platform,
+                description,
+                inserted,
+                updated
+            ) VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )'''), (
+                'thepackage',
+                'somelicense',
+                '1.0',
+                'http://some.url',
+                'john.doe@example.com',
+                'http://some.url/bar.tar.gz',
+                'this is some project',
+                '1.0',
+                'linux',
+                'long desc',
+                self.now,
+                self.now
+            ))
+
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session(bind=self.conn)
+        self.manager = ReleaseManager(self.session)
+
+    def tearDown(self):
+        self.conn.execute('DELETE FROM release')
+
+    def test_get(self):
+        release = self.manager.get('john.doe@example.com',
+                                   'thepackage',
+                                   '1.0')
+
+        expected = {
+            'package': 'thepackage',
+            'license': 'somelicense',
+            'metadata_version': '1.0',
+            'home_page': 'http://some.url',
+            'author_email': 'john.doe@example.com',
+            'download_url': 'http://some.url/bar.tar.gz',
+            'summary': 'this is some project',
+            'version': '1.0',
+            'platform': 'linux',
+            'description': 'long desc',
+            'inserted': self.now,
+            'updated': self.now
+        }
+
+        result = {
+            'package': release.package,
+            'license': release.license,
+            'metadata_version': release.metadata_version,
+            'home_page': release.home_page,
+            'author_email': release.author_email,
+            'download_url': release.download_url,
+            'summary': release.summary,
+            'version': release.version,
+            'platform': release.platform,
+            'description': release.description,
+            'inserted': release.inserted,
+            'updated': release.updated
+        }
+
+        self.assertEqual(expected, result)
