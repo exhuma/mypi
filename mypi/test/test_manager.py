@@ -43,6 +43,19 @@ def upgrade_db():
     os.environ['EXHUMA_MYPI_FILENAME'] = ''
 
 
+class TestBase(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cfg = Config('exhuma', 'mypi', filename='test.ini')
+        cls.engine = create_engine(cfg.get('sqlalchemy', 'url'))
+        cls.conn = cls.engine.connect()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.conn.close()
+
+
 class TestUserManager(TestCase):
 
     @classmethod
@@ -121,7 +134,7 @@ class TestUserManager(TestCase):
         self.assertEqual(res.scalar(), 2)
 
 
-class TestReleaseManager(TestCase):
+class TestReleaseManager(TestBase):
 
     @classmethod
     def setUpClass(cls):
@@ -264,3 +277,273 @@ class TestReleaseManager(TestCase):
         }
 
         self.assertEqual(expected, result)
+
+
+class TestPackageManager(TestBase):
+
+    @classmethod
+    def setUpClass(cls):
+        cfg = Config('exhuma', 'mypi', filename='test.ini')
+        cls.engine = create_engine(cfg.get('sqlalchemy', 'url'))
+        cls.conn = cls.engine.connect()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.conn.close()
+
+    def setUp(self):
+
+        self.now = datetime.now()
+        self.conn.execute(dedent(
+            '''\
+            INSERT INTO package (
+                name,
+                inserted,
+                updated
+            ) VALUES (
+                ?,
+                ?,
+                ?
+            )'''), (
+                'thepackage',
+                self.now,
+                self.now
+            ))
+
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session(bind=self.conn)
+        self.manager = PackageManager(self.session)
+
+    def tearDown(self):
+        self.conn.execute('DELETE FROM package')
+
+    def test_get_or_add(self):
+        pack = self.manager.get_or_add('thepackage')
+        self.session.commit()
+        res = self.conn.execute('select count(*) from package')
+        self.assertEqual(res.scalar(), 1)
+
+        result = {
+            'name': pack.name,
+            'inserted': pack.inserted,
+            'updated': pack.updated
+        }
+
+        expected = {
+            'name': 'thepackage',
+            'inserted': self.now,
+            'updated': self.now
+        }
+
+        self.assertEqual(result, expected)
+
+    def test_get_or_add_nonexisting(self):
+        pack = self.manager.get_or_add('thenewpackage')
+        self.session.commit()
+        res = self.conn.execute('select count(*) from package')
+        self.assertEqual(res.scalar(), 2)
+
+        self.assertEqual(pack.name, 'thenewpackage')
+        self.assertTrue(pack.inserted > self.now)
+        self.assertTrue(pack.updated > self.now)
+
+    def test_get(self):
+        pack = self.manager.get('thepackage')
+
+        result = {
+            'name': pack.name,
+            'inserted': pack.inserted,
+            'updated': pack.updated
+        }
+
+        expected = {
+            'name': 'thepackage',
+            'inserted': self.now,
+            'updated': self.now
+        }
+
+        self.assertEqual(result, expected)
+
+    def test_all(self):
+        packages = self.manager.all()
+
+        expected = [{
+            'name': 'thepackage',
+            'inserted': self.now,
+            'updated': self.now,
+        }]
+
+        result = [{
+            'name': _.name,
+            'inserted': _.inserted,
+            'updated': _.updated
+        } for _ in packages]
+
+        self.assertEqual(result, expected)
+
+
+class TestFileManager(TestBase):
+
+    @classmethod
+    def setUpClass(cls):
+        cfg = Config('exhuma', 'mypi', filename='test.ini')
+        cls.engine = create_engine(cfg.get('sqlalchemy', 'url'))
+        cls.conn = cls.engine.connect()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.conn.close()
+
+    def setUp(self):
+        self.now = datetime.now()
+        self.conn.execute(dedent(
+            '''\
+            INSERT INTO file (
+                package,
+                author_email,
+                version,
+                md5_digest,
+                filename,
+                comment,
+                filetype,
+                pyversion,
+                protcol_version,
+                data,
+                inserted,
+                updated
+            ) VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )'''), (
+            'thepackage',
+            'jane.doe@example.com',
+            '2.0',
+            'abcdef1234567890abcdef1234567890',
+            'file.name.tar.gz',
+            'mycomment',
+            'application/octet-stream',
+            '2.7',
+            '1.0',
+            b'foo',
+            self.now,
+            self.now
+        ))
+
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session(bind=self.conn)
+        self.manager = FileManager(self.session)
+
+    def tearDown(self):
+        self.conn.execute('DELETE FROM file')
+
+    def test_by_md5(self):
+        file_ = self.manager.by_md5('thepackage',
+                                    'abcdef1234567890abcdef1234567890')
+
+        result = {
+            'package': file_.package,
+            'author_email': file_.author_email,
+            'version': file_.version,
+            'md5_digest': file_.md5_digest,
+            'filename': file_.filename,
+            'comment': file_.comment,
+            'filetype': file_.filetype,
+            'pyversion': file_.pyversion,
+            'protcol_version': file_.protcol_version,
+            'data': file_.data,
+            'inserted': file_.inserted,
+            'updated': file_.updated,
+        }
+
+        expected = {
+            'package': 'thepackage',
+            'author_email': 'jane.doe@example.com',
+            'version': '2.0',
+            'md5_digest': 'abcdef1234567890abcdef1234567890',
+            'filename': 'file.name.tar.gz',
+            'comment': 'mycomment',
+            'filetype': 'application/octet-stream',
+            'pyversion': '2.7',
+            'protcol_version': '1.0',
+            'data': b'foo',
+            'inserted': self.now,
+            'updated': self.now
+        }
+
+        self.assertEqual(result, expected)
+
+    def test_find_by_filename(self):
+        file_ = self.manager.by_filename('thepackage', 'file.name.tar.gz')
+
+        result = {
+            'package': file_.package,
+            'author_email': file_.author_email,
+            'version': file_.version,
+            'md5_digest': file_.md5_digest,
+            'filename': file_.filename,
+            'comment': file_.comment,
+            'filetype': file_.filetype,
+            'pyversion': file_.pyversion,
+            'protcol_version': file_.protcol_version,
+            'data': file_.data,
+            'inserted': file_.inserted,
+            'updated': file_.updated,
+        }
+
+        expected = {
+            'package': 'thepackage',
+            'author_email': 'jane.doe@example.com',
+            'version': '2.0',
+            'md5_digest': 'abcdef1234567890abcdef1234567890',
+            'filename': 'file.name.tar.gz',
+            'comment': 'mycomment',
+            'filetype': 'application/octet-stream',
+            'pyversion': '2.7',
+            'protcol_version': '1.0',
+            'data': b'foo',
+            'inserted': self.now,
+            'updated': self.now
+        }
+
+        self.assertEqual(result, expected)
+
+    def test_create(self):
+        file_ = self.manager.create(
+            'thepackage',
+            'jane.doe@example.com',
+            '5.0',
+            'newfile',
+            'aabbccddeeff00112233445566778899')
+        self.session.commit()
+
+        result = {
+            'package': file_.package,
+            'author_email': file_.author_email,
+            'version': file_.version,
+            'md5_digest': file_.md5_digest,
+            'filename': file_.filename,
+            'inserted': file_.inserted,
+            'updated': file_.updated,
+        }
+
+        expected = {
+            'package': 'thepackage',
+            'author_email': 'jane.doe@example.com',
+            'version': '5.0',
+            'md5_digest': 'aabbccddeeff00112233445566778899',
+            'filename': 'newfile',
+            'inserted': self.now,
+            'updated': self.now
+        }
+
+        self.assertEqual(result, expected)

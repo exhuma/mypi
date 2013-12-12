@@ -145,18 +145,18 @@ class FileManager(Manager):
     Manages File instances.
     """
 
-    def find(self, package, md5_digest):
+    def by_md5(self, package, md5_digest):
         """
-        Finds a file by package and MD5-digest
+        Finds a file by package and MD5-digest. May return None.
         """
         q = self._session.query(File)
         q = q.filter(File.package == package)
         q = q.filter(File.md5_digest == md5_digest)
         return q.first()
 
-    def find_by_filename(self, package, filename):
+    def by_filename(self, package, filename):
         """
-        Finds a file by filename
+        Finds a file by filename. May return None.
         """
         q = self._session.query(File)
         q = q.filter(File.package == package)
