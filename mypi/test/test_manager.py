@@ -245,7 +245,22 @@ class TestReleaseManager(TestCase):
 
         self.assertEqual(expected, result)
 
-
     def test_create(self):
-        release = self.manager.create(email, name, version)
-        self.fail()
+        release = self.manager.create(
+            'jane.doe@example.com',
+            'other_release',
+            '2.0')
+
+        expected = {
+            'package': 'other_release',
+            'author_email': 'jane.doe@example.com',
+            'version': '2.0',
+        }
+
+        result = {
+            'package': release.package,
+            'author_email': release.author_email,
+            'version': release.version,
+        }
+
+        self.assertEqual(expected, result)
