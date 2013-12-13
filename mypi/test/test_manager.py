@@ -4,7 +4,6 @@ from datetime import datetime
 from unittest import TestCase
 from os import unlink
 
-from mock import create_autospec
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from config_resolver import Config
@@ -449,6 +448,7 @@ class TestFileManager(TestBase):
     def test_by_md5(self):
         file_ = self.manager.by_md5('thepackage',
                                     'abcdef1234567890abcdef1234567890')
+        self.maxDiff = 1000
 
         result = {
             'package': file_.package,
@@ -466,15 +466,15 @@ class TestFileManager(TestBase):
         }
 
         expected = {
-            'package': 'thepackage',
-            'author_email': 'jane.doe@example.com',
-            'version': '2.0',
-            'md5_digest': 'abcdef1234567890abcdef1234567890',
-            'filename': 'file.name.tar.gz',
-            'comment': 'mycomment',
-            'filetype': 'application/octet-stream',
-            'pyversion': '2.7',
-            'protcol_version': '1.0',
+            'package': u'thepackage',
+            'author_email': u'jane.doe@example.com',
+            'version': u'2.0',
+            'md5_digest': u'abcdef1234567890abcdef1234567890',
+            'filename': u'file.name.tar.gz',
+            'comment': u'mycomment',
+            'filetype': u'application/octet-stream',
+            'pyversion': u'2.7',
+            'protcol_version': 1,
             'data': b'foo',
             'inserted': self.now,
             'updated': self.now
@@ -501,15 +501,15 @@ class TestFileManager(TestBase):
         }
 
         expected = {
-            'package': 'thepackage',
-            'author_email': 'jane.doe@example.com',
-            'version': '2.0',
-            'md5_digest': 'abcdef1234567890abcdef1234567890',
-            'filename': 'file.name.tar.gz',
-            'comment': 'mycomment',
-            'filetype': 'application/octet-stream',
-            'pyversion': '2.7',
-            'protcol_version': '1.0',
+            'package': u'thepackage',
+            'author_email': u'jane.doe@example.com',
+            'version': u'2.0',
+            'md5_digest': u'abcdef1234567890abcdef1234567890',
+            'filename': u'file.name.tar.gz',
+            'comment': u'mycomment',
+            'filetype': u'application/octet-stream',
+            'pyversion': u'2.7',
+            'protcol_version': 1,
             'data': b'foo',
             'inserted': self.now,
             'updated': self.now
@@ -532,18 +532,15 @@ class TestFileManager(TestBase):
             'version': file_.version,
             'md5_digest': file_.md5_digest,
             'filename': file_.filename,
-            'inserted': file_.inserted,
-            'updated': file_.updated,
         }
 
+        self.maxDiff = 1000
         expected = {
-            'package': 'thepackage',
-            'author_email': 'jane.doe@example.com',
-            'version': '5.0',
-            'md5_digest': 'aabbccddeeff00112233445566778899',
-            'filename': 'newfile',
-            'inserted': self.now,
-            'updated': self.now
+            'package': u'thepackage',
+            'author_email': u'jane.doe@example.com',
+            'version': u'5.0',
+            'md5_digest': u'aabbccddeeff00112233445566778899',
+            'filename': u'newfile',
         }
 
         self.assertEqual(result, expected)
