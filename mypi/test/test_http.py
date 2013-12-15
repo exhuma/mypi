@@ -4,17 +4,15 @@ from cStringIO import StringIO
 
 from config_resolver import Config
 
-from mypi import App
+from mypi.server import APP
 
 
-@unittest.skip('test not yet implemented')
-class FlaskrTestCase(unittest.TestCase):
+class MyPiHTTPTestCase(unittest.TestCase):
 
     def setUp(self):
-        main_app = App(Config('exhuma', 'mypi', filename='test.ini'))
-        main_app.config['TESTING'] = True
-        self.manager = main_app.manager
-        self.app = main_app.test_client()
+        APP.config['ini'] = Config('exhuma', 'mypi', filename='test.ini')
+        APP.config['TESTING'] = True
+        self.app = APP.test_client()
 
     def tearDown(self):
         pass
@@ -31,7 +29,7 @@ class FlaskrTestCase(unittest.TestCase):
             self.assertIn(name, response.text)
 
     def test_post_root(self):
-        response = self.app.post('/', {
+        response = self.app.post('/', data={
             ':action': '<some_action>'
         })
         self.assertEqual(
@@ -39,7 +37,7 @@ class FlaskrTestCase(unittest.TestCase):
             501)
 
     def test_get_non_existing_package(self):
-        response = self.app.get('/somepackage')
+        response = self.app.get('/somepackage/')
         self.assertEqual(
             response.status_code,
             404)
@@ -92,7 +90,7 @@ class FlaskrTestCase(unittest.TestCase):
                 self.assertIn('file.filename', response.text)
 
     def test_simple_non_existing_pkg(self):
-        response = self.app.get('/simple/mybadpackage')
+        response = self.app.get('/simple/mybadpackage/')
         self.assertEqual(response.status_code,
                          404)
 
@@ -104,22 +102,22 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_upload(self):
         response = self.app.post('/', data={
-            'file': (StringIO('file_content'), 'test.txt'),
-            ':action': 'upload'
+            'content': (StringIO('file_content'), 'test.txt'),
+            ':action': 'file_upload'
         })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.text, 'OK')
-        self.manager.file_manager.create.assert_called_with(
+        self.main_app._file_manager.create.assert_called_with(
             'data', 'test.txt')
 
     def test_duplicate_upload(self):
         self.app.post('/', data={
-            'file': (StringIO('file_content'), 'test.txt'),
-            ':action': 'upload'
+            'content': (StringIO('file_content'), 'test.txt'),
+            ':action': 'file_upload'
         })
         response = self.app.post('/', data={
-            'file': (StringIO('file_content'), 'test.txt'),
-            ':action': 'upload'
+            'content': (StringIO('file_content'), 'test.txt'),
+            ':action': 'file_upload'
         })
         self.assertEqual(response.status_code, 409)
         self.assertIn(response.text.lower(), 'exists')
@@ -128,5 +126,5 @@ class FlaskrTestCase(unittest.TestCase):
         self.app.port('/', {
             ':action': 'submit',
             'foo': 'bar'})
-        self.manager.release_manager.register.assert_called_with(
+        self.main_app._release_manager.register.assert_called_with(
             foo='bar')

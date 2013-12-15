@@ -3,11 +3,12 @@ Main web application code.
 """
 from __future__ import print_function
 import logging
+from sqlalchemy.orm import sessionmaker, scoped_session
 
-from flask import Flask, g, abort, render_template
+from flask import Flask, g, abort, render_template, request
 from werkzeug.utils import secure_filename
 
-from mypi import db as model, App
+from mypi.manager import Manager
 
 LOG = logging.getLogger(__name__)
 APP = Flask(__name__)
@@ -18,7 +19,10 @@ def before_request():
     """
     Make the DB accessible for each request.
     """
-    g.app = App(model.Session())
+    g.config = APP.config['ini']
+    sess = scoped_session(sessionmaker(g.config.get('sqlalchemy', 'url')))
+    g.db = sess()
+    g.manager = Manager(g.db)
 
 
 @APP.teardown_request
@@ -44,15 +48,14 @@ def post():
     """
     Handle POST requests to the web root.
     """
-    from flask import request
     frm = request.form
 
-    #TODO: raise error if :action not in frm
     action_name = "_do_%s" % frm[":action"]
     action = globals().get(action_name, None)
     if action:
         return action(frm)
 
+    LOG.error('Attempted to executed unimplemented action: %s', action_name)
     return abort(501, description=(
         "Action %s is not yet implemented" % frm[":action"]))
 
@@ -113,7 +116,6 @@ def _do_file_upload(data):
     """
     Store the file in the database.
     """
-    from flask import request
     file_ = request.files['content']
     filename = secure_filename(file_.filename)
 

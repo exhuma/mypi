@@ -7,6 +7,8 @@ from .manager import (
     PackageManager,
     ReleaseManager)
 
+from .server import APP
+
 
 LOG = logging.getLogger(__name__)
 
@@ -18,6 +20,7 @@ class App(object):
         self._file_manager = FileManager(session)
         self._package_manager = PackageManager(session)
         self._release_manager = ReleaseManager(session)
+        self._flask = APP
 
     def register_release(self, data):
         """
