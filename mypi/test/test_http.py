@@ -3,16 +3,20 @@ import unittest
 from cStringIO import StringIO
 
 from config_resolver import Config
+from sqlalchemy.orm import sessionmaker
+from mock import create_autospec
 
-from mypi.server import APP
+from mypi.server import create_app
 
 
 class MyPiHTTPTestCase(unittest.TestCase):
 
     def setUp(self):
-        APP.config['ini'] = Config('exhuma', 'mypi', filename='test.ini')
-        APP.config['TESTING'] = True
-        self.app = APP.test_client()
+        config = Config('exhuma', 'mypi', filename='test.ini')
+        self.session = create_autospec(sessionmaker)
+        flask_instance = create_app(self.session, config)
+        flask_instance.config['TESTING'] = True
+        self.app = flask_instance.test_client()
 
     def tearDown(self):
         pass
@@ -103,12 +107,25 @@ class MyPiHTTPTestCase(unittest.TestCase):
     def test_upload(self):
         response = self.app.post('/', data={
             'content': (StringIO('file_content'), 'test.txt'),
-            ':action': 'file_upload'
+            ':action': 'file_upload',
+            'author_email': '',
+            'comment': '',
+            'filetype': '',
+            'md5_digest': '',
+            'name': '',
+            'protcol_version': '',
+            'pyversion': '',
+            'version': '',
+            'author_email': '',
+            'name': '',
+            'version': ''
         })
+        print(self.session.mock_calls)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.text, 'OK')
         self.main_app._file_manager.create.assert_called_with(
             'data', 'test.txt')
+        self.fail('not all submitted data is tested')
 
     def test_duplicate_upload(self):
         self.app.post('/', data={
@@ -119,6 +136,7 @@ class MyPiHTTPTestCase(unittest.TestCase):
             'content': (StringIO('file_content'), 'test.txt'),
             ':action': 'file_upload'
         })
+
         self.assertEqual(response.status_code, 409)
         self.assertIn(response.text.lower(), 'exists')
 
