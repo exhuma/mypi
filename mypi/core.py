@@ -95,6 +95,26 @@ class App(object):
         file_.data = file_data
         file_digest = md5(file_data).hexdigest()
 
-        LOG.debug('MD5: %s', file_digest)
+        LOG.debug('File MD5: %s, submitted MD5: %s',
+                  file_digest,
+                  data['md5_digest'])
         if file_.md5_digest != file_digest:
             raise ValueError("md5 checksum error")
+
+    def get_package_list(self):
+        """
+        Returns a list of all packages in the system.
+        """
+        raise NotImplementedError()
+
+    def get_package_by_name(self, name):
+        """
+        Returns one package or ``None`` if no such package has been found.
+        """
+        raise NotImplementedError()
+
+    def package_file_by_filename(self, package_name, file_name):
+        """
+        Gets one file for one package or ``None`` if no such file exists.
+        """
+        raise NotImplementedError()

@@ -10,10 +10,10 @@ LOG = logging.getLogger(__name__)
 APP = Flask(__name__)
 
 
-def create_app(sessionmaker, config):
+def create_app(config, session=None):
     app = Flask(__name__)
     app._mypi_conf = config
-    app._sessionmaker = sessionmaker
+    app._session = session
 
     from mypi.views.core import CORE
     app.register_blueprint(CORE)

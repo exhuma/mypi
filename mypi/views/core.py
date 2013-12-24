@@ -3,11 +3,10 @@ import logging
 
 from flask import Blueprint, current_app
 from flask import g, abort, render_template, request
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
-from mypi.manager import Manager
 from mypi.core import App
 
 
@@ -20,10 +19,11 @@ def before_request():
     """
     Make the DB accessible for each request.
     """
-    sess = scoped_session(
-        current_app._sessionmaker(
-            current_app._mypi_conf.get('sqlalchemy', 'url')))
-    g.db = sess()
+
+    url = current_app._mypi_conf.get('sqlalchemy', 'url')
+    sess = current_app._session or scoped_session(sessionmaker(url))()
+    g.db = sess
+    # Rename this "app" to "mypi" to distinguish it better from the flask app!
     g.app = App(sess)
 
 
@@ -41,7 +41,7 @@ def index():
     """
     Main index page.
     """
-    packages = model.Package.all(g.db)
+    packages = g.app.get_package_list()
     return render_template("package_list.html", packages=packages)
 
 
@@ -68,7 +68,7 @@ def package(name):
     """
     Display the Package details
     """
-    proj = model.Package.get(g.db, name)
+    proj = g.app.get_package_by_name(name)
     if not proj:
         return abort(404, description="No such package")
 
@@ -80,7 +80,7 @@ def download(pkg, filename):
     """
     Handle package downloads.
     """
-    file_ = model.File.find_by_filename(g.db, pkg, filename)
+    file_ = g.app.package_file_by_filename(pkg, filename)
     if not file_:
         return abort(404, description="File not found")
 
@@ -98,7 +98,7 @@ def simple():
     """
     List all available packages
     """
-    packages = model.Package.all(g.db)
+    packages = g.app.get_package_list()
     return render_template("simple/packages.html", packages=packages)
 
 
@@ -108,7 +108,7 @@ def simple_package(pkg):
     """
     List all available package releases.
     """
-    pkg = model.Package.get(g.db, pkg)
+    pkg = g.app.get_package_by_name(pkg)
     if not pkg:
         abort(404, description="No such package")
     return render_template("simple/releases.html", package=pkg)
@@ -137,7 +137,7 @@ def _do_submit(data):
     Stores a package submission in the database.
     """
     try:
-        rel = model.Release.register(g.db, data)
+        rel = g.app.register_release(data)
         g.db.commit()
         return "added release %s" % rel
     except ValueError, ex:
